@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Tibbiy Lug'at | Medical Dictionary</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --card: #1a2236;
+    --border: #2a3550;
+    --accent: #4f9cf9;
+    --accent2: #a78bfa;
+    --accent3: #34d399;
+    --accent4: #f87171;
+    --accent5: #fb923c;
+    --accent6: #f472b6;
+    --accent7: #22d3ee;
+    --text: #e8edf8;
+    --muted: #6b7fa3;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; min-height:100vh; overflow-x:hidden; }
+  body::before { content:''; position:fixed; inset:0; background: radial-gradient(ellipse 80% 50% at 20% 10%, rgba(79,156,249,0.07) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 80% 90%, rgba(167,139,250,0.07) 0%, transparent 60%); pointer-events:none; z-index:0; }
+  .header { position:sticky; top:0; z-index:100; background:rgba(10,15,30,0.95); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); padding:12px 16px; }
+  .header-top { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .logo-icon { width:36px; height:36px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .header-title { font-family:'Playfair Display',serif; font-size:20px; background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+  .header-sub { font-size:11px; color:var(--muted); letter-spacing:0.05em; }
+  .search-wrap { position:relative; }
+  .search-input { width:100%; background:var(--card); border:1.5px solid var(--border); border-radius:14px; padding:11px 44px 11px 16px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:15px; outline:none; transition:border-color 0.2s,box-shadow 0.2s; }
+  .search-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(79,156,249,0.12); }
+  .search-input::placeholder { color:var(--muted); }
+  .search-icon { position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:18px; pointer-events:none; }
+  .filters { display:flex; gap:7px; padding:10px 16px; overflow-x:auto; scrollbar-width:none; position:relative; z-index:1; }
+  .filters::-webkit-scrollbar { display:none; }
+  .filter-btn { flex-shrink:0; background:var(--card); border:1.5px solid var(--border); border-radius:20px; padding:6px 12px; color:var(--muted); font-size:11px; font-weight:500; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:'DM Sans',sans-serif; }
+  .filter-btn.active { color:#fff; }
+  .filter-btn[data-cat="all"].active { background:var(--accent); border-color:var(--accent); }
+  .filter-btn[data-cat="anatomy"].active { background:#1d4ed8; border-color:#1d4ed8; }
+  .filter-btn[data-cat="disease"].active { background:#b91c1c; border-color:#b91c1c; }
+  .filter-btn[data-cat="medicine"].active { background:#065f46; border-color:#065f46; }
+  .filter-btn[data-cat="surgery"].active { background:#5b21b6; border-color:#5b21b6; }
+  .filter-btn[data-cat="gynecology"].active { background:#9d174d; border-color:#9d174d; }
+  .filter-btn[data-cat="pediatrics"].active { background:#92400e; border-color:#92400e; }
+  .filter-btn[data-cat="neurology"].active { background:#1e3a5f; border-color:#1e3a5f; }
+  .filter-btn[data-cat="ophthalmology"].active { background:#134e4a; border-color:#134e4a; }
+  .filter-btn[data-cat="biochemistry"].active { background:#3b1f6e; border-color:#3b1f6e; }
+  .cat-biochemistry { background:rgba(196,140,255,0.15); color:#c084fc; }
+  .stats-bar { padding:5px 16px; font-size:12px; color:var(--muted); position:relative; z-index:1; }
+  .stats-bar span { color:var(--accent); font-weight:600; }
+  .content { padding:8px 16px 100px; position:relative; z-index:1; }
+  .term-card { background:var(--card); border:1px solid var(--border); border-radius:16px; margin-bottom:9px; overflow:hidden; cursor:pointer; transition:all 0.25s; animation:fadeUp 0.3s ease both; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  .term-card:hover,.term-card:active { border-color:var(--accent); transform:translateY(-1px); box-shadow:0 8px 30px rgba(79,156,249,0.1); }
+  .term-card.expanded { border-color:var(--accent2); }
+  .card-header { display:flex; align-items:flex-start; justify-content:space-between; padding:13px 14px; gap:10px; }
+  .card-main { flex:1; min-width:0; }
+  .term-uz { font-size:15px; font-weight:600; color:var(--text); margin-bottom:3px; line-height:1.3; }
+  .term-lat { font-size:12px; color:var(--accent); font-style:italic; margin-bottom:3px; }
+  .term-preview { font-size:11px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .card-right { display:flex; flex-direction:column; align-items:flex-end; gap:5px; flex-shrink:0; }
+  .category-badge { font-size:10px; font-weight:600; padding:3px 7px; border-radius:6px; letter-spacing:0.03em; text-transform:uppercase; }
+  .cat-anatomy { background:rgba(79,156,249,0.15); color:var(--accent); }
+  .cat-disease { background:rgba(248,113,113,0.15); color:var(--accent4); }
+  .cat-medicine { background:rgba(52,211,153,0.15); color:var(--accent3); }
+  .cat-surgery { background:rgba(167,139,250,0.15); color:var(--accent2); }
+  .cat-gynecology { background:rgba(244,114,182,0.15); color:var(--accent6); }
+  .cat-pediatrics { background:rgba(251,146,60,0.15); color:var(--accent5); }
+  .cat-neurology { background:rgba(34,211,238,0.15); color:var(--accent7); }
+  .cat-ophthalmology { background:rgba(52,211,153,0.12); color:#6ee7b7; }
+  .expand-icon { color:var(--muted); font-size:16px; transition:transform 0.3s; }
+  .term-card.expanded .expand-icon { transform:rotate(180deg); }
+  .card-details { display:none; padding:0 14px 14px; border-top:1px solid var(--border); }
+  .term-card.expanded .card-details { display:block; }
+  .lang-row { display:flex; align-items:flex-start; gap:10px; padding:9px 0; border-bottom:1px solid rgba(42,53,80,0.5); }
+  .lang-row:last-of-type { border-bottom:none; }
+  .lang-flag { width:26px; height:26px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; margin-top:2px; }
+  .lang-info { flex:1; min-width:0; }
+  .lang-label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:2px; }
+  .lang-term { font-size:13px; font-weight:500; color:var(--text); line-height:1.4; }
+  .lang-term.latin { font-style:italic; color:var(--accent); }
+  .copy-btn { background:none; border:none; color:var(--muted); cursor:pointer; padding:4px; font-size:13px; flex-shrink:0; transition:color 0.2s; }
+  .copy-btn:hover { color:var(--accent); }
+  .term-desc { padding:8px 0 0; font-size:12px; color:var(--muted); line-height:1.6; border-top:1px solid var(--border); margin-top:4px; }
+  .no-results { text-align:center; padding:60px 20px; color:var(--muted); display:none; }
+  .no-results .icon { font-size:48px; margin-bottom:12px; }
+  .no-results h3 { font-size:18px; color:var(--text); margin-bottom:8px; }
+  .bottom-hint { position:fixed; bottom:0; left:0; right:0; background:rgba(10,15,30,0.95); border-top:1px solid var(--border); padding:9px 16px; text-align:center; font-size:11px; color:var(--muted); z-index:100; backdrop-filter:blur(10px); }
+  .toast { position:fixed; bottom:58px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--accent3); color:#0a0f1e; padding:7px 18px; border-radius:20px; font-size:13px; font-weight:600; opacity:0; transition:all 0.3s; z-index:999; pointer-events:none; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  mark { background:rgba(79,156,249,0.3); color:#fff; border-radius:3px; padding:0 2px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-top">
+    <div class="logo-icon">🏥</div>
+    <div>
+      <div class="header-title">Tibbiy Lug'at</div>
+      <div class="header-sub">UZ · LAT · RU · EN — 500+ termin</div>
+    </div>
+  </div>
+  <div class="search-wrap">
+    <input class="search-input" type="search" id="searchInput" placeholder="Termin qidiring... (uz, lat, ru, en)" autocomplete="off" spellcheck="false">
+    <span class="search-icon">🔍</span>
+  </div>
+</div>
+<div class="filters">
+  <button class="filter-btn active" data-cat="all">Barchasi</button>
+  <button class="filter-btn" data-cat="anatomy">🫀 Anatomiya</button>
+  <button class="filter-btn" data-cat="disease">🦠 Kasalliklar</button>
+  <button class="filter-btn" data-cat="medicine">💊 Dori-darmonlar</button>
+  <button class="filter-btn" data-cat="surgery">🔪 Jarrohlik</button>
+  <button class="filter-btn" data-cat="gynecology">🤰 Ginekologiya</button>
+  <button class="filter-btn" data-cat="pediatrics">👶 Pediatriya</button>
+  <button class="filter-btn" data-cat="neurology">🧠 Nevrologiya</button>
+  <button class="filter-btn" data-cat="ophthalmology">👁️ Oftalmologiya</button>
+  <button class="filter-btn" data-cat="biochemistry">🧪 Biokimyo</button>
+</div>
+<div class="stats-bar"><span id="countDisplay">0</span> ta termin topildi</div>
+<div class="content" id="termList"></div>
+<div class="no-results" id="noResults">
+  <div class="icon">🔬</div>
+  <h3>Hech narsa topilmadi</h3>
+  <p>Qidiruv so'zini o'zgartiring yoki boshqa kategoriyani tanlang</p>
+</div>
+<div class="bottom-hint">📖 Terminni bosib batafsil ma'lumot oling</div>
+<div class="toast" id="toast">Nusxalandi! ✓</div>
+
+<script>
+const TERMS = [
+// ===================== ANATOMIYA =====================
+{id:1,cat:'anatomy',uz:"Yurak",lat:"Cor, cordis",ru:"Сердце",en:"Heart",desc:"Qon aylanish tizimining asosiy mushak a'zosi"},
+{id:2,cat:'anatomy',uz:"O'pka",lat:"Pulmo, pulmonis",ru:"Лёгкое",en:"Lung",desc:"Nafas olish tizimining asosiy a'zosi, gazlar almashinuvi sodir bo'ladi"},
+{id:3,cat:'anatomy',uz:"Jigar",lat:"Hepar, hepatis",ru:"Печень",en:"Liver",desc:"Eng yirik ichki bez; hazm, detoksikatsiya, oqsil sintezi"},
+{id:4,cat:'anatomy',uz:"Buyrak",lat:"Ren, renis",ru:"Почка",en:"Kidney",desc:"Siydik hosil qiluvchi filtrlash a'zosi"},
+{id:5,cat:'anatomy',uz:"Miya (bosh)",lat:"Cerebrum",ru:"Головной мозг",en:"Brain",desc:"Markaziy asab tizimining oliy a'zosi"},
+{id:6,cat:'anatomy',uz:"Orqa miya",lat:"Medulla spinalis",ru:"Спинной мозг",en:"Spinal cord",desc:"Markaziy asab tizimining orqa qismi, reflekslar markazi"},
+{id:7,cat:'anatomy',uz:"Oshqozon",lat:"Gaster / Ventriculus",ru:"Желудок",en:"Stomach",desc:"Hazm tizimining asosiy a'zosi, kislotali muhit"},
+{id:8,cat:'anatomy',uz:"Taloq",lat:"Lien / Splen",ru:"Селезёнка",en:"Spleen",desc:"Immunitet va qon hosil qilishda ishtirok etadi"},
+{id:9,cat:'anatomy',uz:"Oshqozon osti bezi",lat:"Pancreas",ru:"Поджелудочная железа",en:"Pancreas",desc:"Insulin, glyukagon va hazm fermentlarini ishlab chiqaradi"},
+{id:10,cat:'anatomy',uz:"Qizilo'ngach",lat:"Oesophagus",ru:"Пищевод",en:"Oesophagus",desc:"Og'iz bo'shlig'ini oshqozon bilan bog'lovchi naychasi"},
+{id:11,cat:'anatomy',uz:"Yo'g'on ichak",lat:"Intestinum crassum",ru:"Толстая кишка",en:"Large intestine",desc:"Suv so'rilishi va najas hosil bo'lishi"},
+{id:12,cat:'anatomy',uz:"Ingichka ichak",lat:"Intestinum tenue",ru:"Тонкая кишка",en:"Small intestine",desc:"Oziq moddalarning asosiy so'rilish joyi"},
+{id:13,cat:'anatomy',uz:"Ko'r ichak (appendiks)",lat:"Caecum / Appendix vermiformis",ru:"Слепая кишка / Аппендикс",en:"Caecum / Appendix",desc:"Yo'g'on ichakning boshlang'ich qismi"},
+{id:14,cat:'anatomy',uz:"To'g'ri ichak",lat:"Rectum",ru:"Прямая кишка",en:"Rectum",desc:"Yo'g'on ichakning yakuniy qismi"},
+{id:15,cat:'anatomy',uz:"Ko'z",lat:"Oculus",ru:"Глаз",en:"Eye",desc:"Ko'rish sezgisi a'zosi"},
+{id:16,cat:'anatomy',uz:"Quloq",lat:"Auris",ru:"Ухо",en:"Ear",desc:"Eshitish va muvozanat a'zosi"},
+{id:17,cat:'anatomy',uz:"Burun",lat:"Nasus",ru:"Нос",en:"Nose",desc:"Nafas olish va hid bilish a'zosi"},
+{id:18,cat:'anatomy',uz:"Til",lat:"Lingua",ru:"Язык",en:"Tongue",desc:"Ta'm bilish, nutq va yutish a'zosi"},
+{id:19,cat:'anatomy',uz:"Tish",lat:"Dens, dentis",ru:"Зуб",en:"Tooth",desc:"Ovqatni chaynash uchun suyak to'qimasi"},
+{id:20,cat:'anatomy',uz:"Suyak",lat:"Os, ossis",ru:"Кость",en:"Bone",desc:"Tayanch-harakat tizimining qattiq qismi"},
+{id:21,cat:'anatomy',uz:"Bo'g'im",lat:"Articulatio",ru:"Сустав",en:"Joint",desc:"Ikki yoki undan ortiq suyak birikishi joyi"},
+{id:22,cat:'anatomy',uz:"Mushak",lat:"Musculus",ru:"Мышца",en:"Muscle",desc:"Harakat ta'minlovchi qisqaruvchi to'qima"},
+{id:23,cat:'anatomy',uz:"Nerv",lat:"Nervus",ru:"Нерв",en:"Nerve",desc:"Asab tizimining signal o'tkazuvchi tolasi"},
+{id:24,cat:'anatomy',uz:"Arteriya",lat:"Arteria",ru:"Артерия",en:"Artery",desc:"Yurakdan qon olib ketuvchi qon tomiri"},
+{id:25,cat:'anatomy',uz:"Vena",lat:"Vena",ru:"Вена",en:"Vein",desc:"Yurakka qon olib keluvchi qon tomiri"},
+{id:26,cat:'anatomy',uz:"Kapillyar",lat:"Vas capillare",ru:"Капилляр",en:"Capillary",desc:"Eng ingichka qon tomiri, to'qimalarda gazlar almashinuvi"},
+{id:27,cat:'anatomy',uz:"Qalqonsimon bez",lat:"Glandula thyroidea",ru:"Щитовидная железа",en:"Thyroid gland",desc:"Metabolizmni boshqaruvchi T3, T4 gormonlarini ishlab chiqaradi"},
+{id:28,cat:'anatomy',uz:"Buyrak usti bezi",lat:"Glandula suprarenalis",ru:"Надпочечник",en:"Adrenal gland",desc:"Adrenalin, kortizol va aldosteron ishlab chiqaradi"},
+{id:29,cat:'anatomy',uz:"Timus (ayrisimon bez)",lat:"Thymus",ru:"Тимус",en:"Thymus",desc:"T-limfotsitlar yetilish joyi, immunitet markazi"},
+{id:30,cat:'anatomy',uz:"Gipofiz",lat:"Hypophysis / Glandula pituitaria",ru:"Гипофиз",en:"Pituitary gland",desc:"Endokrin tizimning asosiy bezi, ko'plab gormonlarni boshqaradi"},
+{id:31,cat:'anatomy',uz:"Epifiz (qo'ziqorin bez)",lat:"Corpus pineale",ru:"Эпифиз",en:"Pineal gland",desc:"Melatonin ishlab chiqaradi, uyqu-uyg'oqlik siklini boshqaradi"},
+{id:32,cat:'anatomy',uz:"Gipotalamus",lat:"Hypothalamus",ru:"Гипоталамус",en:"Hypothalamus",desc:"Vegetativ asab tizimi va endokrin tizimni boshqaruvchi markaz"},
+{id:33,cat:'anatomy',uz:"Miyacha",lat:"Cerebellum",ru:"Мозжечок",en:"Cerebellum",desc:"Harakat koordinatsiyasi va muvozanat markazi"},
+{id:34,cat:'anatomy',uz:"Uzunchoq miya",lat:"Medulla oblongata",ru:"Продолговатый мозг",en:"Medulla oblongata",desc:"Nafas olish, yurak urishi va yutish reflekslarini boshqaradi"},
+{id:35,cat:'anatomy',uz:"Ko'prik (Varoli ko'prigi)",lat:"Pons Varoli",ru:"Мост (Варолиев мост)",en:"Pons",desc:"Bosh miya va miyacha orasidagi aloqa markazi"},
+{id:36,cat:'anatomy',uz:"Yarim sharlar (bosh miya)",lat:"Hemispheria cerebri",ru:"Полушария головного мозга",en:"Cerebral hemispheres",desc:"Oliy asab faoliyati, tafakkur, xotira, nutq"},
+{id:37,cat:'anatomy',uz:"Limfa tuguni",lat:"Nodus lymphaticus",ru:"Лимфатический узел",en:"Lymph node",desc:"Immunitet tizimining filtrlash organi"},
+{id:38,cat:'anatomy',uz:"Limfa tomiri",lat:"Vas lymphaticum",ru:"Лимфатический сосуд",en:"Lymphatic vessel",desc:"Limfa suyuqligini olib yuruvchi naycha"},
+{id:39,cat:'anatomy',uz:"Qon plazması",lat:"Plasma sanguinis",ru:"Плазма крови",en:"Blood plasma",desc:"Qonning suyuq qismi, oqsillar va moddalar tashuvchi"},
+{id:40,cat:'anatomy',uz:"Eritrotsit",lat:"Erythrocytus",ru:"Эритроцит",en:"Erythrocyte (Red blood cell)",desc:"Kislorod tashuvchi qizil qon hujayralari"},
+{id:41,cat:'anatomy',uz:"Leykotsit",lat:"Leucocytus",ru:"Лейкоцит",en:"Leucocyte (White blood cell)",desc:"Immunitet himoyasini ta'minlovchi oq qon hujayralari"},
+{id:42,cat:'anatomy',uz:"Trombotsit",lat:"Thrombocytus",ru:"Тромбоцит",en:"Thrombocyte (Platelet)",desc:"Qon ivishida ishtirok etuvchi hujayralar"},
+{id:43,cat:'anatomy',uz:"Gemoglobin",lat:"Haemoglobinum",ru:"Гемоглобин",en:"Haemoglobin",desc:"Eritrotsitlardagi kislorod tashuvchi oqsil"},
+{id:44,cat:'anatomy',uz:"Teri",lat:"Cutis / Integumentum",ru:"Кожа",en:"Skin",desc:"Tananing himoya qoplamasi, eng katta a'zo"},
+{id:45,cat:'anatomy',uz:"Soch follukuli",lat:"Folliculus pili",ru:"Волосяной фолликул",en:"Hair follicle",desc:"Soch o'sadigan chuqurcha"},
+{id:46,cat:'anatomy',uz:"Moy bezi",lat:"Glandula sebacea",ru:"Сальная железа",en:"Sebaceous gland",desc:"Teri moyini (sebumni) ishlab chiqaruvchi bez"},
+{id:47,cat:'anatomy',uz:"Ter bezi",lat:"Glandula sudorifera",ru:"Потовая железа",en:"Sweat gland",desc:"Ter ishlab chiqaruvchi bez, termoregulyatsiya"},
+{id:48,cat:'anatomy',uz:"Miya po'stlog'i",lat:"Cortex cerebri",ru:"Кора головного мозга",en:"Cerebral cortex",desc:"Oliy asab faoliyatining markazi"},
+{id:49,cat:'anatomy',uz:"Traxeya",lat:"Trachea",ru:"Трахея",en:"Trachea",desc:"Hiqildoqdan bronxlargacha bo'lgan nafas yo'li"},
+{id:50,cat:'anatomy',uz:"Bronxlar",lat:"Bronchi",ru:"Бронхи",en:"Bronchi",desc:"Traxeyaning shoxlangan davomi, o'pka ichiga kiradi"},
+{id:51,cat:'anatomy',uz:"Alveolyar",lat:"Alveolus pulmonis",ru:"Альвеола",en:"Alveolus",desc:"O'pkaning eng kichik hujayrachasi, gaz almashinuvi sodir bo'ladi"},
+{id:52,cat:'anatomy',uz:"Diafragma",lat:"Diaphragma",ru:"Диафрагма",en:"Diaphragm",desc:"Ko'krak va qorin bo'shlig'ini ajratuvchi nafas mushagi"},
+{id:53,cat:'anatomy',uz:"Qovurg'a",lat:"Costa",ru:"Ребро",en:"Rib",desc:"Ko'krak qafasini hosil qiluvchi yoy shaklidagi suyak"},
+{id:54,cat:'anatomy',uz:"To'sh suyagi",lat:"Sternum",ru:"Грудина",en:"Sternum",desc:"Ko'krak qafasining old devori, qovurg'alar birikadi"},
+{id:55,cat:'anatomy',uz:"Umurtqa pog'onasi",lat:"Columna vertebralis",ru:"Позвоночник",en:"Spine / Vertebral column",desc:"34 ta umurtqadan iborat tayanch o'qi"},
+{id:56,cat:'anatomy',uz:"Umurtqa",lat:"Vertebra",ru:"Позвонок",en:"Vertebra",desc:"Umurtqa pog'onasining alohida bo'g'imi"},
+{id:57,cat:'anatomy',uz:"Chanoq",lat:"Pelvis",ru:"Таз",en:"Pelvis",desc:"Pastki tanani tayanchi bo'lgan suyak halqa"},
+{id:58,cat:'anatomy',uz:"Son suyagi",lat:"Femur",ru:"Бедренная кость",en:"Femur",desc:"Inson tanasining eng uzun va mustahkam suyagi"},
+{id:59,cat:'anatomy',uz:"Kalla suyagi",lat:"Cranium",ru:"Череп",en:"Skull",desc:"Miyani himoya qiluvchi suyak konteyner"},
+{id:60,cat:'anatomy',uz:"Ko'z kosasi",lat:"Orbita",ru:"Глазница",en:"Orbit",desc:"Ko'z olmachasi joylashgan suyak bo'shliq"},
+{id:61,cat:'anatomy',uz:"O't pufagi",lat:"Vesica biliaris / Cholecystis",ru:"Жёлчный пузырь",en:"Gallbladder",desc:"O't suyuqligini to'plovchi a'zo"},
+{id:62,cat:'anatomy',uz:"O't yo'li",lat:"Ductus choledochus",ru:"Желчный проток",en:"Bile duct",desc:"O'tni o't pufagidan o'n ikki barmoqli ichakka olib boradi"},
+{id:63,cat:'anatomy',uz:"Siydik pufagi",lat:"Vesica urinaria",ru:"Мочевой пузырь",en:"Urinary bladder",desc:"Siydikni to'plovchi a'zo"},
+{id:64,cat:'anatomy',uz:"Siydik yo'li",lat:"Ureter",ru:"Мочеточник",en:"Ureter",desc:"Buyrakdan siydik pufagiga siydik olib boradi"},
+{id:65,cat:'anatomy',uz:"Siydik chiqarish yo'li",lat:"Urethra",ru:"Мочеиспускательный канал",en:"Urethra",desc:"Siydikni pufakdan tashqariga olib chiquvchi naycha"},
+{id:66,cat:'anatomy',uz:"Prostat bezi",lat:"Glandula prostatica",ru:"Предстательная железа",en:"Prostate gland",desc:"Erkaklar urug' suyuqligining bir qismini ishlab chiqaradi"},
+{id:67,cat:'anatomy',uz:"Moyak",lat:"Testis",ru:"Яичко",en:"Testis",desc:"Erkak jinsiy hujayralari — sperma ishlab chiqariladi"},
+{id:68,cat:'anatomy',uz:"Tuxumdon",lat:"Ovarium",ru:"Яичник",en:"Ovary",desc:"Tuxum hujayralari va jinsiy gormonlar ishlab chiqariladi"},
+{id:69,cat:'anatomy',uz:"Bachadon",lat:"Uterus",ru:"Матка",en:"Uterus",desc:"Homila rivojlanadigan mushakli a'zo"},
+{id:70,cat:'anatomy',uz:"Bachadon naycha",lat:"Tuba uterina",ru:"Маточная труба",en:"Fallopian tube",desc:"Tuxum hujayrasi tuxumdondan bachadonga o'tadi"},
+{id:71,cat:'anatomy',uz:"Qin",lat:"Vagina",ru:"Влагалище",en:"Vagina",desc:"Bachadonni tashqi muhit bilan bog'lovchi kanal"},
+{id:72,cat:'anatomy',uz:"Ko'krak suti bezi",lat:"Glandula mammaria",ru:"Молочная железа",en:"Mammary gland",desc:"Ona suti ishlab chiqaradigan bez"},
+{id:73,cat:'anatomy',uz:"Hiqildoq",lat:"Larynx",ru:"Гортань",en:"Larynx",desc:"Ovoz hosil qiluvchi va nafas yo'li organi"},
+{id:74,cat:'anatomy',uz:"Yutqin",lat:"Pharynx",ru:"Глотка",en:"Pharynx",desc:"Og'iz va burunni qizilo'ngach bilan bog'laydi"},
+{id:75,cat:'anatomy',uz:"Hiqildoq qopqog'i",lat:"Epiglottis",ru:"Надгортанник",en:"Epiglottis",desc:"Yutish vaqtida nafas yo'lini to'sib beruvchi tog'ay"},
+{id:76,cat:'anatomy',uz:"Tizza qopqog'i",lat:"Patella",ru:"Надколенник",en:"Patella (Kneecap)",desc:"Tizzaning old tomonini himoya qiluvchi suyak"},
+{id:77,cat:'anatomy',uz:"Bilak (radius)",lat:"Radius",ru:"Лучевая кость",en:"Radius",desc:"Bilak suyaklaridan tashqi tomonda joylashgani"},
+{id:78,cat:'anatomy',uz:"Tirsak suyagi",lat:"Ulna",ru:"Локтевая кость",en:"Ulna",desc:"Bilak suyaklaridan ichki tomonda joylashgani"},
+{id:79,cat:'anatomy',uz:"Yelka suyagi",lat:"Humerus",ru:"Плечевая кость",en:"Humerus",desc:"Yelkaning asosiy suyagi"},
+{id:80,cat:'anatomy',uz:"O'mrov suyagi",lat:"Clavicula",ru:"Ключица",en:"Clavicle",desc:"Ko'krak va yelkani bog'lovchi S-shaklli suyak"},
+{id:81,cat:'anatomy',uz:"Kurak suyagi",lat:"Scapula",ru:"Лопатка",en:"Scapula",desc:"Orqa tomonida joylashgan yassi uchburchak suyak"},
+{id:82,cat:'anatomy',uz:"Ko'z pardalari (to'r parda)",lat:"Retina",ru:"Сетчатка",en:"Retina",desc:"Ko'zning yorug'likka sezgir ichki pardasi"},
+{id:83,cat:'anatomy',uz:"Ko'z gavhari",lat:"Lens",ru:"Хрусталик",en:"Lens",desc:"Ko'z ichidagi shaffof linza, fokuslanishni ta'minlaydi"},
+{id:84,cat:'anatomy',uz:"Ko'z shox pardasi",lat:"Cornea",ru:"Роговица",en:"Cornea",desc:"Ko'zning shaffof tashqi qoplamasi"},
+{id:85,cat:'anatomy',uz:"Ko'z qorachig'i",lat:"Pupilla",ru:"Зрачок",en:"Pupil",desc:"Yorug'lik o'tadigan ko'z markazidagi teshik"},
+{id:86,cat:'anatomy',uz:"Ko'z kiprikchasi (iris)",lat:"Iris",ru:"Радужка",en:"Iris",desc:"Ko'z rangini belgilovchi qorachiq atrofidagi xalqa"},
+{id:87,cat:'anatomy',uz:"Quloq pardasi",lat:"Membrana tympani",ru:"Барабанная перепонка",en:"Eardrum (Tympanic membrane)",desc:"Tovushni kuchaytirib ichki quloqqa yetkazuvchi parda"},
+{id:88,cat:'anatomy',uz:"Ichki quloq",lat:"Auris interna",ru:"Внутреннее ухо",en:"Inner ear",desc:"Eshitish va vestibular apparati joylashgan qismi"},
+{id:89,cat:'anatomy',uz:"Vestibular apparat",lat:"Apparatus vestibularis",ru:"Вестибулярный аппарат",en:"Vestibular apparatus",desc:"Muvozanat va fazoviy orientatsiyani ta'minlaydi"},
+{id:90,cat:'anatomy',uz:"Aorta",lat:"Aorta",ru:"Аорта",en:"Aorta",desc:"Eng yirik arteriya, yurakdan qon taqsimlanadi"},
+{id:91,cat:'anatomy',uz:"O'pka arteriyasi",lat:"Arteria pulmonalis",ru:"Лёгочная артерия",en:"Pulmonary artery",desc:"Yurakning o'ng qorinchasi va o'pka o'rtasidagi arteriya"},
+{id:92,cat:'anatomy',uz:"Yurak qorinchalari",lat:"Ventriculi cordis",ru:"Желудочки сердца",en:"Cardiac ventricles",desc:"Yurak qonini arteriyalarga haydovchi pastki kameralar"},
+{id:93,cat:'anatomy',uz:"Yurak bo'lmacha",lat:"Atrium cordis",ru:"Предсердие",en:"Cardiac atrium",desc:"Venoz qonni qabul qiluvchi yurak yuqori kamerasi"},
+{id:94,cat:'anatomy',uz:"Yurak klapani",lat:"Valvula cordis",ru:"Клапан сердца",en:"Heart valve",desc:"Qon oqimini bir yo'nalishda ta'minlovchi tuzilma"},
+{id:95,cat:'anatomy',uz:"Perikard",lat:"Pericardium",ru:"Перикард",en:"Pericardium",desc:"Yurakni o'rab turuvchi ikki qavatli parda"},
+{id:96,cat:'anatomy',uz:"Plevra",lat:"Pleura",ru:"Плевра",en:"Pleura",desc:"O'pkani o'rab turuvchi seroz parda"},
+{id:97,cat:'anatomy',uz:"Periton (qorin pardasi)",lat:"Peritoneum",ru:"Брюшина",en:"Peritoneum",desc:"Qorin bo'shlig'ini ichki tomoni va a'zolarni o'rab turuvchi parda"},
+{id:98,cat:'anatomy',uz:"Limfa",lat:"Lympha",ru:"Лимфа",en:"Lymph",desc:"Limfa tomirlarida oqadigan shaffof suyuqlik"},
+{id:99,cat:'anatomy',uz:"Sinovial suyuqlik",lat:"Liquor synovialis",ru:"Синовиальная жидкость",en:"Synovial fluid",desc:"Bo'g'im bo'shlig'ini to'ldirib moylovchi suyuqlik"},
+{id:100,cat:'anatomy',uz:"Tog'ay to'qimasi",lat:"Cartilago",ru:"Хрящ",en:"Cartilage",desc:"Suyak orasidagi elastik tayanch to'qima"},
+
+// ===================== KASALLIKLAR =====================
+{id:101,cat:'disease',uz:"Yurak yetishmovchiligi",lat:"Insufficientia cordis",ru:"Сердечная недостаточность",en:"Heart failure",desc:"Yurakning qon pompasi sifatida etarli ishlamasligi"},
+{id:102,cat:'disease',uz:"Surunkali o'pka kasalligi",lat:"Morbus pulmonalis chronicus obstructivus (MPKO)",ru:"ХОБЛ",en:"COPD",desc:"Nafas yo'llarining surunkali torayishi bilan kechadigan kasallik"},
+{id:103,cat:'disease',uz:"Saraton (o'sma)",lat:"Carcinoma / Neoplasma malignum",ru:"Злокачественная опухоль",en:"Malignant tumor",desc:"Hujayralarning nazoratlanmagan ko'payishi"},
+{id:104,cat:'disease',uz:"Qandli diabet",lat:"Diabetes mellitus",ru:"Сахарный диабет",en:"Diabetes mellitus",desc:"Qondagi qand miqdorini tartibga solishning buzilishi"},
+{id:105,cat:'disease',uz:"Gipertoniya",lat:"Hypertensio arterialis",ru:"Артериальная гипертензия",en:"Arterial hypertension",desc:"Qon bosimining doimiy ko'tarilishi (>140/90)"},
+{id:106,cat:'disease',uz:"Gipotenziya",lat:"Hypotensio arterialis",ru:"Артериальная гипотензия",en:"Arterial hypotension",desc:"Qon bosimining patologik pasayishi (<90/60)"},
+{id:107,cat:'disease',uz:"Pnevmoniya",lat:"Pneumonia",ru:"Пневмония",en:"Pneumonia",desc:"O'pka to'qimasining yallig'lanishi"},
+{id:108,cat:'disease',uz:"Appenditsit",lat:"Appendicitis",ru:"Аппендицит",en:"Appendicitis",desc:"Appendiksning yallig'lanishi"},
+{id:109,cat:'disease',uz:"Yurak tutilishi",lat:"Infarctus myocardii",ru:"Инфаркт миокарда",en:"Myocardial infarction",desc:"Yurak mushagiga qon ta'minotining to'xtashi"},
+{id:110,cat:'disease',uz:"Insult",lat:"Insultus cerebrovascularis",ru:"Инсульт",en:"Stroke",desc:"Miyaga qon quyilishi yoki uning to'xtashi"},
+{id:111,cat:'disease',uz:"Bronxial astma",lat:"Asthma bronchiale",ru:"Бронхиальная астма",en:"Bronchial asthma",desc:"Nafas yo'llarining qaytalanuvchi torayishi"},
+{id:112,cat:'disease',uz:"Jigar sirrozi",lat:"Cirrhosis hepatis",ru:"Цирроз печени",en:"Liver cirrhosis",desc:"Jigar to'qimasining fibroz bilan almashishi"},
+{id:113,cat:'disease',uz:"Gastrit",lat:"Gastritis",ru:"Гастрит",en:"Gastritis",desc:"Oshqozon shilliq qavatining yallig'lanishi"},
+{id:114,cat:'disease',uz:"Pankreatit",lat:"Pancreatitis",ru:"Панкреатит",en:"Pancreatitis",desc:"Oshqozon osti bezining yallig'lanishi"},
+{id:115,cat:'disease',uz:"Nefrit",lat:"Nephritis",ru:"Нефрит",en:"Nephritis",desc:"Buyraklarning yallig'lanishi"},
+{id:116,cat:'disease',uz:"Anemiya",lat:"Anaemia",ru:"Анемия",en:"Anaemia",desc:"Qondagi gemoglobin va eritrotsitlarning kamayishi"},
+{id:117,cat:'disease',uz:"Leykemiya",lat:"Leucaemia",ru:"Лейкемия",en:"Leukaemia",desc:"Qon hosil qilish tizimining onkologik kasalligi"},
+{id:118,cat:'disease',uz:"Epilepsiya",lat:"Epilepsia",ru:"Эпилепсия",en:"Epilepsy",desc:"Miyaning takroriy tutqanoqlar bilan namoyon bo'luvchi kasalligi"},
+{id:119,cat:'disease',uz:"Revmatoid artrit",lat:"Arthritis rheumatoidea",ru:"Ревматоидный артрит",en:"Rheumatoid arthritis",desc:"Bo'g'imlarning autoimmun yallig'lanish kasalligi"},
+{id:120,cat:'disease',uz:"Osteoporoz",lat:"Osteoporosis",ru:"Остеопороз",en:"Osteoporosis",desc:"Suyak zichligining kamayishi, sinish xavfi ortadi"},
+{id:121,cat:'disease',uz:"Meningit",lat:"Meningitis",ru:"Менингит",en:"Meningitis",desc:"Miya pardalarining yallig'lanishi"},
+{id:122,cat:'disease',uz:"Tuberkulyoz",lat:"Tuberculosis",ru:"Туберкулёз",en:"Tuberculosis",desc:"Mycobacterium tuberculosis qo'zg'atuvchi infeksion kasallik"},
+{id:123,cat:'disease',uz:"Sepsis",lat:"Sepsis",ru:"Сепсис",en:"Sepsis",desc:"Butun organizmni qamrab olgan infeksion jarayon"},
+{id:124,cat:'disease',uz:"Buyrak toshi",lat:"Urolithiasis / Nephrolithiasis",ru:"Мочекаменная болезнь",en:"Urolithiasis",desc:"Siydik yo'llarida tosh hosil bo'lishi"},
+{id:125,cat:'disease',uz:"O't toshi",lat:"Cholelithiasis",ru:"Желчнокаменная болезнь",en:"Cholelithiasis",desc:"O't pufagi yoki yo'llarida tosh hosil bo'lishi"},
+{id:126,cat:'disease',uz:"Gepatit",lat:"Hepatitis",ru:"Гепатит",en:"Hepatitis",desc:"Jigarning yallig'lanishi, virusli yoki toksik"},
+{id:127,cat:'disease',uz:"Gepatit A",lat:"Hepatitis A (Hepatitis infectiosa)",ru:"Гепатит A",en:"Hepatitis A",desc:"Ifloslangan suv va oziq orqali yuqadigan jigar yallig'lanishi"},
+{id:128,cat:'disease',uz:"Gepatit B",lat:"Hepatitis B (Hepatitis serica)",ru:"Гепатит B",en:"Hepatitis B",desc:"Qon va jinsiy yo'l bilan yuqadigan virusli hepatit"},
+{id:129,cat:'disease',uz:"Gepatit C",lat:"Hepatitis C",ru:"Гепатит C",en:"Hepatitis C",desc:"Asosan qon orqali yuqadigan, surunkali kechadigan hepatit"},
+{id:130,cat:'disease',uz:"Qandli diabet 1-tur",lat:"Diabetes mellitus typi I",ru:"Сахарный диабет I типа",en:"Type 1 diabetes",desc:"Autoimmun kasallik — insulin ishlab chiqarilmaydi"},
+{id:131,cat:'disease',uz:"Qandli diabet 2-tur",lat:"Diabetes mellitus typi II",ru:"Сахарный диабет II типа",en:"Type 2 diabetes",desc:"Insulinga sezgirlik pasayishi bilan kechadigan kasallik"},
+{id:132,cat:'disease',uz:"Ateroskleroz",lat:"Atherosclerosis",ru:"Атеросклероз",en:"Atherosclerosis",desc:"Arteriya devoriga yog' plaqalari cho'kishi"},
+{id:133,cat:'disease',uz:"Stenokardiya",lat:"Angina pectoris",ru:"Стенокардия",en:"Angina pectoris",desc:"Yurak mushaklariga etarli qon kelmasligi natijasidagi og'riq"},
+{id:134,cat:'disease',uz:"Aritmiya",lat:"Arrhythmia cordis",ru:"Аритмия сердца",en:"Cardiac arrhythmia",desc:"Yurak urishi ritmi yoki chastotasining buzilishi"},
+{id:135,cat:'disease',uz:"Yurak fibrillyatsiyasi",lat:"Fibrillatio atriorum",ru:"Фибрилляция предсердий",en:"Atrial fibrillation",desc:"Yurak bo'lmachalarining tartibsiz qisqarishi"},
+{id:136,cat:'disease',uz:"Yurak tug'ma nuqsoni",lat:"Vitium cordis congenitum",ru:"Врождённый порок сердца",en:"Congenital heart defect",desc:"Tug'ilishdan mavjud yurak tuzilish anomaliyasi"},
+{id:137,cat:'disease',uz:"Plevrit",lat:"Pleuritis",ru:"Плеврит",en:"Pleuritis",desc:"O'pkani o'rab turuvchi plevra pardasi yallig'lanishi"},
+{id:138,cat:'disease',uz:"Pnevmotoraks",lat:"Pneumothorax",ru:"Пневмоторакс",en:"Pneumothorax",desc:"Plevra bo'shlig'iga havo to'planishi"},
+{id:139,cat:'disease',uz:"Bronxit",lat:"Bronchitis",ru:"Бронхит",en:"Bronchitis",desc:"Bronxlar shilliq qavatining yallig'lanishi"},
+{id:140,cat:'disease',uz:"O'pka emfizeması",lat:"Emphysema pulmonum",ru:"Эмфизема лёгких",en:"Pulmonary emphysema",desc:"O'pka alveolalarining patologik kengayishi"},
+{id:141,cat:'disease',uz:"Qorin aylanishi (peritonit)",lat:"Peritonitis",ru:"Перитонит",en:"Peritonitis",desc:"Qorin pardasi yallig'lanishi, jiddiy jarrohlik holat"},
+{id:142,cat:'disease',uz:"Yarali kolит",lat:"Colitis ulcerosa",ru:"Язвенный колит",en:"Ulcerative colitis",desc:"Yo'g'on ichak shilliq qavatining surunkali yallig'lanishi"},
+{id:143,cat:'disease',uz:"Kron kasalligi",lat:"Morbus Crohn",ru:"Болезнь Крона",en:"Crohn's disease",desc:"Hazm traktining har qanday qismini yallig'lantiruvchi autoimmun kasallik"},
+{id:144,cat:'disease',uz:"Qizilo'ngach yarasi (reflüks)",lat:"Oesophagitis refluxica / GERD",ru:"ГЭРБ (Гастроэзофагеальная болезнь)",en:"GERD",desc:"Oshqozon kislotasining qizilo'ngachga qaytishi"},
+{id:145,cat:'disease',uz:"Oshqozon yarasi",lat:"Ulcus ventriculi",ru:"Язва желудка",en:"Gastric ulcer",desc:"Oshqozon shilliq qavatida yaraning hosil bo'lishi"},
+{id:146,cat:'disease',uz:"12 barmoqli ichak yarasi",lat:"Ulcus duodeni",ru:"Язва двенадцатиперстной кишки",en:"Duodenal ulcer",desc:"12 barmoqli ichakda yaraning hosil bo'lishi"},
+{id:147,cat:'disease',uz:"Gemorroy",lat:"Haemorrhoides",ru:"Геморрой",en:"Haemorrhoids",desc:"To'g'ri ichak venalarining patologik kengayishi"},
+{id:148,cat:'disease',uz:"Divertikul",lat:"Diverticulum",ru:"Дивертикул",en:"Diverticulum",desc:"Ichak devorining tashqariga bo'rtib chiqishi"},
+{id:149,cat:'disease',uz:"Holetsistit",lat:"Cholecystitis",ru:"Холецистит",en:"Cholecystitis",desc:"O't pufagining yallig'lanishi"},
+{id:150,cat:'disease',uz:"Jigar yog'lanishi",lat:"Steatosis hepatis",ru:"Жировая дистрофия печени",en:"Fatty liver disease",desc:"Jigar hujayralarida yog'ning to'planishi"},
+{id:151,cat:'disease',uz:"Buyrak yetishmovchiligi",lat:"Insufficientia renalis",ru:"Почечная недостаточность",en:"Renal failure",desc:"Buyrakning qonni filtrlash qobiliyatining pasayishi"},
+{id:152,cat:'disease',uz:"Pielonefrit",lat:"Pyelonephritis",ru:"Пиелонефрит",en:"Pyelonephritis",desc:"Buyrak va siydik yo'llari yallig'lanishi"},
+{id:153,cat:'disease',uz:"Sistit",lat:"Cystitis",ru:"Цистит",en:"Cystitis",desc:"Siydik pufagining yallig'lanishi"},
+{id:154,cat:'disease',uz:"Uretrit",lat:"Urethritis",ru:"Уретрит",en:"Urethritis",desc:"Siydik chiqarish yo'lining yallig'lanishi"},
+{id:155,cat:'disease',uz:"Podagra",lat:"Arthritis urica / Gout",ru:"Подагра",en:"Gout",desc:"Siydik kislotasi kristallarining bo'g'imlarda to'planishi"},
+{id:156,cat:'disease',uz:"Artrit",lat:"Arthritis",ru:"Артрит",en:"Arthritis",desc:"Bo'g'imlarning yallig'lanishi"},
+{id:157,cat:'disease',uz:"Artroz",lat:"Arthrosis / Osteoarthrosis",ru:"Артроз",en:"Osteoarthritis",desc:"Bo'g'im tog'ayining sekin-asta yemirilishi"},
+{id:158,cat:'disease',uz:"Spondiloz",lat:"Spondylosis",ru:"Спондилёз",en:"Spondylosis",desc:"Umurtqa pog'onasining deformatsiyalovchi kasalligi"},
+{id:159,cat:'disease',uz:"Raxit",lat:"Rachitis",ru:"Рахит",en:"Rickets",desc:"D vitamini yetishmovchiligi natijasida suyak deformatsiyasi"},
+{id:160,cat:'disease',uz:"Qizamiq",lat:"Morbilli / Rubeola",ru:"Корь",en:"Measles",desc:"Yuqori yuqumliligi bilan farqlanuvchi virusli infeksion kasallik"},
+{id:161,cat:'disease',uz:"Suvchechak",lat:"Varicella",ru:"Ветряная оспа",en:"Chickenpox",desc:"Herpes zoster virusidan kelib chiquvchi teri toshmasi bilan namoyon bo'ladigan kasallik"},
+{id:162,cat:'disease',uz:"Qoqshol",lat:"Tetanus",ru:"Столбняк",en:"Tetanus",desc:"Clostridium tetani toksinidan kelib chiquvchi mushak tortishmalari kasalligi"},
+{id:163,cat:'disease',uz:"Difteriya",lat:"Diphtheria",ru:"Дифтерия",en:"Diphtheria",desc:"Corynebacterium diphtheriae qo'zg'atuvchi infeksion kasallik"},
+{id:164,cat:'disease',uz:"Quturish",lat:"Rabies / Lyssa",ru:"Бешенство",en:"Rabies",desc:"Hayvon tishlagandan kelib chiquvchi o'lim xavfi yuqori virusli kasallik"},
+{id:165,cat:'disease',uz:"Gripp",lat:"Influenza",ru:"Грипп",en:"Influenza",desc:"Influenza virusi qo'zg'atuvchi o'tkir respirator kasallik"},
+{id:166,cat:'disease',uz:"COVID-19",lat:"COVID-19 (Coronavirus disease)",ru:"COVID-19",en:"COVID-19",desc:"SARS-CoV-2 virusi qo'zg'atuvchi yuqumli kasallik"},
+{id:167,cat:'disease',uz:"Terining yallig'lanishi",lat:"Dermatitis",ru:"Дерматит",en:"Dermatitis",desc:"Teri yallig'lanishining umumiy nomi"},
+{id:168,cat:'disease',uz:"Psoriaz",lat:"Psoriasis",ru:"Псориаз",en:"Psoriasis",desc:"Teridagi surunkali autoimmun kasallik"},
+{id:169,cat:'disease',uz:"Ekzema",lat:"Eczema",ru:"Экзема",en:"Eczema",desc:"Qichishish va toshmalar bilan kechadigan surunkali teri kasalligi"},
+{id:170,cat:'disease',uz:"Allergiк rhinit",lat:"Rhinitis allergica",ru:"Аллергический ринит",en:"Allergic rhinitis",desc:"Allergenlar ta'sirida burunning yallig'lanishi"},
+{id:171,cat:'disease',uz:"Anafilaksiya",lat:"Anaphylaxia",ru:"Анафилаксия",en:"Anaphylaxis",desc:"Hayot uchun xavfli og'ir allergik reaksiya"},
+{id:172,cat:'disease',uz:"Tireoidit",lat:"Thyroiditis",ru:"Тиреоидит",en:"Thyroiditis",desc:"Qalqonsimon bezning yallig'lanishi"},
+{id:173,cat:'disease',uz:"Gipotireoz",lat:"Hypothyreosis",ru:"Гипотиреоз",en:"Hypothyroidism",desc:"Qalqonsimon bez gormonlari yetishmovchiligi"},
+{id:174,cat:'disease',uz:"Gipertireoz",lat:"Hyperthyreosis",ru:"Гипертиреоз",en:"Hyperthyroidism",desc:"Qalqonsimon bez gormonlari ortiqchaligi"},
+{id:175,cat:'disease',uz:"Qandli diabet — ketоatsidoz",lat:"Ketoacidosis diabetica",ru:"Диабетический кетоацидоз",en:"Diabetic ketoacidosis",desc:"Diabetda hayot uchun xavfli kislota-asos muvozanati buzilishi"},
+
+// ===================== DORI-DARMONLAR =====================
+{id:176,cat:'medicine',uz:"Og'riq qoldiruvchi",lat:"Analgeticum",ru:"Анальгетик",en:"Analgesic",desc:"Og'riqni kamaytiruvchi dori vositasi"},
+{id:177,cat:'medicine',uz:"Antibiotik",lat:"Antibioticum",ru:"Антибиотик",en:"Antibiotic",desc:"Bakteriyalarga qarshi kurashuvchi preparat"},
+{id:178,cat:'medicine',uz:"Antivirus dori",lat:"Antivirale",ru:"Противовирусный препарат",en:"Antiviral",desc:"Virus ko'payishini to'xtatuvchi dori"},
+{id:179,cat:'medicine',uz:"Qon bosimini tushiruvchi",lat:"Antihypertensivum",ru:"Гипотензивный препарат",en:"Antihypertensive",desc:"Arterial qon bosimini normallashtiruvchi dori"},
+{id:180,cat:'medicine',uz:"Insulin",lat:"Insulinum",ru:"Инсулин",en:"Insulin",desc:"Qon glyukozasini boshqaruvchi gormon preparati"},
+{id:181,cat:'medicine',uz:"Antigistamin",lat:"Antihistaminicum",ru:"Антигистаминный препарат",en:"Antihistamine",desc:"Allergik reaksiyalarni bostiruvchi dori"},
+{id:182,cat:'medicine',uz:"Diuretik",lat:"Diureticum",ru:"Диуретик",en:"Diuretic",desc:"Siydik ajratishni kuchaytiruvchi dori"},
+{id:183,cat:'medicine',uz:"Isitma tushiruvchi",lat:"Antipyreticum",ru:"Жаропонижающий препарат",en:"Antipyretic",desc:"Tana haroratini normallashtiruvchi dori"},
+{id:184,cat:'medicine',uz:"Yallig'lanishga qarshi",lat:"Antiinflammatоrium",ru:"Противовоспалительный препарат",en:"Anti-inflammatory",desc:"Yallig'lanish jarayonini kamaytiruvchi dori"},
+{id:185,cat:'medicine',uz:"Uyutuvchi (sedativ)",lat:"Sedativum",ru:"Седативное средство",en:"Sedative",desc:"Asab tizimini tinchlantiruvchi preparat"},
+{id:186,cat:'medicine',uz:"Yurak glikozidi",lat:"Glycosidum cardiacum",ru:"Сердечный гликозид",en:"Cardiac glycoside",desc:"Yurak qisqarishlarini kuchaytiradigan dori"},
+{id:187,cat:'medicine',uz:"Antikoagulyant",lat:"Anticoagulans",ru:"Антикоагулянт",en:"Anticoagulant",desc:"Qon ivishini susaytiradigan dori"},
+{id:188,cat:'medicine',uz:"Kortikosteroid",lat:"Corticosteroidum",ru:"Кортикостероид",en:"Corticosteroid",desc:"Buyrak usti bezi gormonlari asosidagi dori"},
+{id:189,cat:'medicine',uz:"Vaktsina",lat:"Vaccinum",ru:"Вакцина",en:"Vaccine",desc:"Kasallikka immunitetni shakllantiruvchi preparat"},
+{id:190,cat:'medicine',uz:"Vitamin C",lat:"Acidum ascorbicum",ru:"Аскорбиновая кислота (Витамин C)",en:"Ascorbic acid",desc:"Immunitet va antioksidant ta'sir ko'rsatuvchi vitamin"},
+{id:191,cat:'medicine',uz:"Probiotik",lat:"Probioticum",ru:"Пробиотик",en:"Probiotic",desc:"Ichak mikroflora muvozanatini tiklaydi"},
+{id:192,cat:'medicine',uz:"Bronxolitik",lat:"Bronchodilatator",ru:"Бронходилататор",en:"Bronchodilator",desc:"Nafas yo'llarini kengaytiradigan dori"},
+{id:193,cat:'medicine',uz:"Sitostatik",lat:"Cytostaticum",ru:"Цитостатик",en:"Cytostatic",desc:"O'sma hujayralarining ko'payishini to'xtatuvchi dori"},
+{id:194,cat:'medicine',uz:"Antidepressant",lat:"Antidepressivum",ru:"Антидепрессант",en:"Antidepressant",desc:"Depressiya va kayfiyat buzilishini davolovchi dori"},
+{id:195,cat:'medicine',uz:"Antipsixotik",lat:"Antipsychoticum",ru:"Антипсихотик",en:"Antipsychotic",desc:"Psixoz va shizofreniya uchun ishlatiladigan preparat"},
+{id:196,cat:'medicine',uz:"Anxiolitik",lat:"Anxiolyticum",ru:"Анксиолитик",en:"Anxiolytic",desc:"Tashvish va xavotirni kamaytiruvchi dori"},
+{id:197,cat:'medicine',uz:"Hipnotik (uyutuvchi)",lat:"Hypnoticum",ru:"Снотворное средство",en:"Hypnotic / Sleeping pill",desc:"Uyquni qo'lga kiritishga yordam beradigan dori"},
+{id:198,cat:'medicine',uz:"Narkotik og'riq qoldiruvchi",lat:"Analgeticum narcoticuм",ru:"Наркотический анальгетик",en:"Narcotic analgesic",desc:"Kuchli og'riqni bartaraf etuvchi opioid preparat"},
+{id:199,cat:'medicine',uz:"Spazm qoldiruvchi",lat:"Antispasmodicum / Spasmolyticum",ru:"Спазмолитик",en:"Antispasmodic",desc:"Ichki a'zolar mushak spazmini yo'qotuvchi dori"},
+{id:200,cat:'medicine',uz:"Laksativ (ich yumshatuvchi)",lat:"Laxativum",ru:"Слабительное средство",en:"Laxative",desc:"Ich qotishligida ishlatuvchi dori"},
+{id:201,cat:'medicine',uz:"Antiemetik",lat:"Antiemeticum",ru:"Противорвотное средство",en:"Antiemetic",desc:"Ko'ngil aynish va qusishni to'xtatuvchi dori"},
+{id:202,cat:'medicine',uz:"Gemostatik",lat:"Haemostaticum",ru:"Гемостатическое средство",en:"Haemostatic agent",desc:"Qon ketishini to'xtatuvchi preparat"},
+{id:203,cat:'medicine',uz:"Immunosupressor",lat:"Immunosuppressivum",ru:"Иммунодепрессант",en:"Immunosuppressant",desc:"Immunitet tizimi faolligini pasaytiradigan dori"},
+{id:204,cat:'medicine',uz:"Immunostimulator",lat:"Immunostimulans",ru:"Иммуностимулятор",en:"Immunostimulant",desc:"Immunitet tizimi faolligini oshiradigan preparat"},
+{id:205,cat:'medicine',uz:"Lipid pasaytirgich",lat:"Hypolipidaemicum",ru:"Гиполипидемическое средство",en:"Lipid-lowering agent",desc:"Qondagi yog' (xolesterin) miqdorini kamaytiradigan dori"},
+{id:206,cat:'medicine',uz:"Antifungal",lat:"Antimycoticum / Antifungale",ru:"Антимикотик",en:"Antifungal",desc:"Zamburug' infeksiyasiga qarshi dori"},
+{id:207,cat:'medicine',uz:"Antiparazitar",lat:"Antiparasiticum",ru:"Антипаразитарный препарат",en:"Antiparasitic",desc:"Parazitlar (gijja, biot) ga qarshi dori"},
+{id:208,cat:'medicine',uz:"Ko'z tomchisi",lat:"Guttae ophthalmicae",ru:"Глазные капли",en:"Eye drops",desc:"Ko'zga tomizish uchun mo'ljallangan dori"},
+{id:209,cat:'medicine',uz:"Quloq tomchisi",lat:"Guttae auriculares",ru:"Ушные капли",en:"Ear drops",desc:"Quloqqa tomizish uchun mo'ljallangan dori"},
+{id:210,cat:'medicine',uz:"Burun tomchisi",lat:"Guttae nasales",ru:"Назальные капли",en:"Nasal drops",desc:"Burunga tomizish uchun mo'ljallangan dori"},
+{id:211,cat:'medicine',uz:"Aerozol",lat:"Aerosolum",ru:"Аэрозоль",en:"Aerosol / Inhaler",desc:"Nafas yo'llariga purkaladigan dori shakli"},
+{id:212,cat:'medicine',uz:"Tabletkа",lat:"Tabella / Compressa",ru:"Таблетка",en:"Tablet",desc:"Og'iz orqali iste'mol qilinadigan qattiq dori shakli"},
+{id:213,cat:'medicine',uz:"Kapsulа",lat:"Capsula",ru:"Капсула",en:"Capsule",desc:"Dori moddasi qobiq ichiga o'ralgan dori shakli"},
+{id:214,cat:'medicine',uz:"Surtma (maz)",lat:"Unguentum",ru:"Мазь",en:"Ointment",desc:"Teriga surtiladigan dori shakli"},
+{id:215,cat:'medicine',uz:"Gel (dori)",lat:"Gelum medicinale",ru:"Медицинский гель",en:"Medical gel",desc:"Yumshoq suv asosidagi dori shakli"},
+{id:216,cat:'medicine',uz:"Ukol (inyeksiya)",lat:"Injectio",ru:"Инъекция",en:"Injection",desc:"To'g'ridan-to'g'ri qon yoki to'qimaga kiritish usuli"},
+{id:217,cat:'medicine',uz:"Tomchi (dropper)",lat:"Infusio intravenosa",ru:"Внутривенная инфузия",en:"Intravenous infusion",desc:"Venaga sekin tomchilatib kiritish"},
+{id:218,cat:'medicine',uz:"Vitamin D",lat:"Vitaminum D (Cholecalciferolum)",ru:"Витамин D",en:"Vitamin D",desc:"Kaltsiy so'rilishi va suyak sog'lig'i uchun muhim vitamin"},
+{id:219,cat:'medicine',uz:"Temir preparati",lat:"Ferrum (Praeparata ferri)",ru:"Препараты железа",en:"Iron supplement",desc:"Temir tanqisligini to'ldiruvchi preparat"},
+{id:220,cat:'medicine',uz:"Kalsiy preparati",lat:"Calcium (Praeparata calcii)",ru:"Препараты кальция",en:"Calcium supplement",desc:"Suyak va tish mustahkamligini ta'minlash uchun"},
+
+// ===================== JARROHLIK =====================
+{id:221,cat:'surgery',uz:"Jarrohlik operatsiyasi",lat:"Operatio chirurgica",ru:"Хирургическая операция",en:"Surgical operation",desc:"Davolash maqsadida o'tkaziladigan jarrohlik aralashuvi"},
+{id:222,cat:'surgery',uz:"Anesteziologiya",lat:"Anaesthesiologia",ru:"Анестезиология",en:"Anaesthesiology",desc:"Og'riqni to'xtatish usullari va narkoз fani"},
+{id:223,cat:'surgery',uz:"Umumiy narkoz",lat:"Narcosis generalis",ru:"Общий наркоз",en:"General anaesthesia",desc:"Operatsiya davomida to'liq hushni yo'qotish holati"},
+{id:224,cat:'surgery',uz:"Mahalliy anesteziya",lat:"Anaesthesia localis",ru:"Местная анестезия",en:"Local anaesthesia",desc:"Tananing ma'lum qismini sezdirmaydigan usul"},
+{id:225,cat:'surgery',uz:"Appendektomiya",lat:"Appendectomia",ru:"Аппендэктомия",en:"Appendectomy",desc:"Appendiksni jarrohlik yo'li bilan olib tashlash"},
+{id:226,cat:'surgery',uz:"Xoletsistektomiya",lat:"Cholecystectomia",ru:"Холецистэктомия",en:"Cholecystectomy",desc:"O't pufagini jarrohlik yo'li bilan olib tashlash"},
+{id:227,cat:'surgery',uz:"Laparotomiya",lat:"Laparotomia",ru:"Лапаротомия",en:"Laparotomy",desc:"Qorin bo'shlig'ini ochish orqali o'tkaziladigan operatsiya"},
+{id:228,cat:'surgery',uz:"Laparoskopiya",lat:"Laparoscopia",ru:"Лапароскопия",en:"Laparoscopy",desc:"Kamera yordamida qorin bo'shlig'ini ko'rikdan o'tkazish"},
+{id:229,cat:'surgery',uz:"Yurak shuntlash",lat:"Revascularisatio coronaria (CABG)",ru:"Аортокоронарное шунтирование",en:"Coronary artery bypass grafting",desc:"Yurak tomirlari atrofida aylanma yo'l yaratish"},
+{id:230,cat:'surgery',uz:"Transplantatsiya",lat:"Transplantatio",ru:"Трансплантация",en:"Transplantation",desc:"A'zo yoki to'qimani bir organizmdan boshqasiga ko'chirish"},
+{id:231,cat:'surgery',uz:"Amputatsiya",lat:"Amputatio",ru:"Ампутация",en:"Amputation",desc:"Tananing bir qismini jarrohlik yo'li bilan kesib olish"},
+{id:232,cat:'surgery',uz:"Trepanatsiya",lat:"Trepanatio cranii",ru:"Трепанация черепа",en:"Craniotomy",desc:"Kalla suyagini ochib miya operatsiyasini bajarish"},
+{id:233,cat:'surgery',uz:"Protez",lat:"Prothesis",ru:"Протез",en:"Prosthesis",desc:"Sun'iy ravishda ishlab chiqilgan a'zo yoki uning qismi"},
+{id:234,cat:'surgery',uz:"Tikish (sho'va)",lat:"Sutura",ru:"Шов",en:"Suture",desc:"Jarrohlik yaralarini tikish"},
+{id:235,cat:'surgery',uz:"Drenaj",lat:"Drainagium",ru:"Дренаж",en:"Drainage",desc:"Suyuqlik yoki yiringni chiqarish uchun naycha qo'yish"},
+{id:236,cat:'surgery',uz:"Gemostaz",lat:"Haemostasis",ru:"Гемостаз",en:"Haemostasis",desc:"Qon oqishini to'xtatish usullari"},
+{id:237,cat:'surgery',uz:"Rezeksiya",lat:"Resectio",ru:"Резекция",en:"Resection",desc:"A'zoning bir qismini olib tashlash"},
+{id:238,cat:'surgery',uz:"Biopsiya",lat:"Biopsia",ru:"Биопсия",en:"Biopsy",desc:"Tekshiruv uchun to'qima namunasi olish"},
+{id:239,cat:'surgery',uz:"Traxeotomiya",lat:"Tracheotomia",ru:"Трахеотомия",en:"Tracheotomy",desc:"Nafas yo'lini ta'minlash uchun traxeyani kesib ochish"},
+{id:240,cat:'surgery',uz:"Gastrektomiya",lat:"Gastrectomia",ru:"Гастрэктомия",en:"Gastrectomy",desc:"Oshqozonni to'liq yoki qisman olib tashlash"},
+{id:241,cat:'surgery',uz:"Kolektomiya",lat:"Colectomia",ru:"Колэктомия",en:"Colectomy",desc:"Yo'g'on ichakni to'liq yoki qisman olib tashlash"},
+{id:242,cat:'surgery',uz:"Nefrektomiya",lat:"Nephrectomia",ru:"Нефрэктомия",en:"Nephrectomy",desc:"Buyrakni jarrohlik yo'li bilan olib tashlash"},
+{id:243,cat:'surgery',uz:"Splenektomiya",lat:"Splenectomia",ru:"Спленэктомия",en:"Splenectomy",desc:"Taloqni jarrohlik yo'li bilan olib tashlash"},
+{id:244,cat:'surgery',uz:"Tiroidektomiya",lat:"Thyroidectomia",ru:"Тиреоидэктомия",en:"Thyroidectomy",desc:"Qalqonsimon bezni to'liq yoki qisman olib tashlash"},
+{id:245,cat:'surgery',uz:"Mastektomiya",lat:"Mastectomia",ru:"Мастэктомия",en:"Mastectomy",desc:"Ko'krak bezini jarrohlik yo'li bilan olib tashlash"},
+{id:246,cat:'surgery',uz:"Giperektomiya (bachadonni olish)",lat:"Hysterectomia",ru:"Гистерэктомия",en:"Hysterectomy",desc:"Bachadonni jarrohlik yo'li bilan olib tashlash"},
+{id:247,cat:'surgery',uz:"Prostatektomiya",lat:"Prostatectomia",ru:"Простатэктомия",en:"Prostatectomy",desc:"Prostat bezini jarrohlik yo'li bilan olib tashlash"},
+{id:248,cat:'surgery',uz:"Artoplastika",lat:"Arthroplastica",ru:"Артропластика",en:"Arthroplasty",desc:"Bo'g'imni tamirlash yoki sun'iy protez bilan almashtirish"},
+{id:249,cat:'surgery',uz:"Endoskopiya",lat:"Endoscopia",ru:"Эндоскопия",en:"Endoscopy",desc:"Optik asbob yordamida ichki a'zolarni ko'rish"},
+{id:250,cat:'surgery',uz:"Stent o'rnatish",lat:"Stentatio",ru:"Стентирование",en:"Stenting",desc:"Tomir yoki yo'l ichiga kengaytiruvchi kalatka o'rnatish"},
+{id:251,cat:'surgery',uz:"Shunt o'rnatish",lat:"Shunting (Derivatio)",ru:"Шунтирование",en:"Shunting",desc:"To'siq atrofidan aylanma yo'l yaratish"},
+{id:252,cat:'surgery',uz:"Teri ko'chirish (graft)",lat:"Transplantatio cutis",ru:"Кожная трансплантация",en:"Skin graft",desc:"Bir joydan boshqa joyga teri ko'chirish"},
+{id:253,cat:'surgery',uz:"Abstsess ochish",lat:"Incisio et drenatio abscessi",ru:"Вскрытие абсцесса",en:"Abscess incision and drainage",desc:"Yiring to'plangan joyni ochib tozalash"},
+{id:254,cat:'surgery',uz:"Fistula yopish",lat:"Fistulotomia / Fistulectomia",ru:"Закрытие свища",en:"Fistula repair",desc:"Anormal ochiq kanal yoki teshikni jarrohlik yo'li bilan yopish"},
+{id:255,cat:'surgery',uz:"Perikardiodsentez",lat:"Pericardiocentesis",ru:"Перикардиоцентез",en:"Pericardiocentesis",desc:"Yurak atrofidagi perikard bo'shlig'idan suyuqlik olish"},
+
+// ===================== GINEKOLOGIYA =====================
+{id:256,cat:'gynecology',uz:"Homiladorlik",lat:"Graviditas / Gestatio",ru:"Беременность",en:"Pregnancy",desc:"Urug'lanishdan tug'ilishgacha bo'lgan davr (o'rtacha 40 hafta)"},
+{id:257,cat:'gynecology',uz:"Tug'ruq",lat:"Partus / Labor",ru:"Роды",en:"Childbirth / Labour",desc:"Homilaning bachadondan chiqishi jarayoni"},
+{id:258,cat:'gynecology',uz:"Sezar kesim",lat:"Sectio caesarea",ru:"Кесарево сечение",en:"Caesarean section",desc:"Homilani qorin devorini kesib chiqarish"},
+{id:259,cat:'gynecology',uz:"Bachadon bo'yni",lat:"Cervix uteri",ru:"Шейка матки",en:"Cervix uteri",desc:"Bachadonning pastki toraygan qismi"},
+{id:260,cat:'gynecology',uz:"Yo'ldosh",lat:"Placenta",ru:"Плацента",en:"Placenta",desc:"Homilani ona qoni bilan ta'minlovchi a'zo"},
+{id:261,cat:'gynecology',uz:"Kindik ip",lat:"Funiculus umbilicalis",ru:"Пуповина",en:"Umbilical cord",desc:"Homilani yo'ldosh bilan bog'lovchi ip"},
+{id:262,cat:'gynecology',uz:"Homila",lat:"Foetus / Embryo",ru:"Плод / Эмбрион",en:"Foetus / Embryo",desc:"Ona qornidagi rivojlanayotgan inson"},
+{id:263,cat:'gynecology',uz:"Tug'ruqdan keyingi davr",lat:"Puerperium",ru:"Послеродовой период",en:"Postpartum period",desc:"Tug'ruqdan keyin 6 haftaga qadar davom etadigan davrlanish"},
+{id:264,cat:'gynecology',uz:"Amnion suyuqligi",lat:"Liquor amnii",ru:"Амниотическая жидкость",en:"Amniotic fluid",desc:"Homilani o'rab turuvchi va himoya qiluvchi suyuqlik"},
+{id:265,cat:'gynecology',uz:"Xlamidioz",lat:"Chlamydiosis",ru:"Хламидиоз",en:"Chlamydiosis",desc:"Chlamydia trachomatis qo'zg'atuvchi jinsiy yo'l bilan yuquvchi infeksiya"},
+{id:266,cat:'gynecology',uz:"Sifilis",lat:"Syphilis",ru:"Сифилис",en:"Syphilis",desc:"Treponema pallidum qo'zg'atuvchi jinsiy yo'l bilan yuquvchi kasallik"},
+{id:267,cat:'gynecology',uz:"Endometrit",lat:"Endometritis",ru:"Эндометрит",en:"Endometritis",desc:"Bachadon ichki pardasi — endometriyning yallig'lanishi"},
+{id:268,cat:'gynecology',uz:"Endometrioz",lat:"Endometriosis",ru:"Эндометриоз",en:"Endometriosis",desc:"Endometriy to'qimasining bachadondan tashqarida o'sishi"},
+{id:269,cat:'gynecology',uz:"Mioma (bachadon fibroidasi)",lat:"Myoma uteri / Fibroma uteri",ru:"Миома матки",en:"Uterine fibroid",desc:"Bachadon mushak to'qimasidan hosil bo'lgan xavfsiz o'sma"},
+{id:270,cat:'gynecology',uz:"Salpingit",lat:"Salpingitis",ru:"Сальпингит",en:"Salpingitis",desc:"Bachadon naychalarining yallig'lanishi"},
+{id:271,cat:'gynecology',uz:"Ooforit",lat:"Oophoritis",ru:"Оофорит",en:"Oophoritis",desc:"Tuxumdon yallig'lanishi"},
+{id:272,cat:'gynecology',uz:"Polikistoz tuxumdon",lat:"Syndroma ovarii polycystici (PCOS)",ru:"Синдром поликистозных яичников",en:"Polycystic ovary syndrome (PCOS)",desc:"Tuxumdonlarda ko'p kistalar hosil bo'lishi bilan kechadigan sindrom"},
+{id:273,cat:'gynecology',uz:"Vulvit",lat:"Vulvitis",ru:"Вульвит",en:"Vulvitis",desc:"Tashqi jinsiy a'zolar yallig'lanishi"},
+{id:274,cat:'gynecology',uz:"Kolpit",lat:"Colpitis / Vaginitis",ru:"Кольпит / Вагинит",en:"Vaginitis",desc:"Qin shilliq qavatining yallig'lanishi"},
+{id:275,cat:'gynecology',uz:"Toksikoz (homiladorlik)",lat:"Gestosis / Toxicosis gravidarum",ru:"Токсикоз беременных",en:"Gestational toxicosis",desc:"Homiladorlik vaqtida ko'ngil aynishi va qusish"},
+{id:276,cat:'gynecology',uz:"Preeklampsiya",lat:"Praeeclampsia",ru:"Преэклампсия",en:"Preeclampsia",desc:"Homiladorlikda yuqori qon bosimi va oqsil yo'qolishi"},
+{id:277,cat:'gynecology',uz:"Eklampsiya",lat:"Eclampsia",ru:"Эклампсия",en:"Eclampsia",desc:"Homiladorlikning hayot uchun xavfli kechiktirilgan preeklampsiyasi"},
+{id:278,cat:'gynecology',uz:"Abort (tushish)",lat:"Abortus",ru:"Выкидыш / Аборт",en:"Miscarriage / Abortion",desc:"Homilaning 22 haftadan oldin yo'qolishi"},
+{id:279,cat:'gynecology',uz:"Bachadon tashqarida joylashish (ektopik)",lat:"Graviditas extrauterina",ru:"Внематочная беременность",en:"Ectopic pregnancy",desc:"Homilaning bachadon tashqarisida rivojlanishi"},
+{id:280,cat:'gynecology',uz:"Ko'krak bezi o'sması",lat:"Carcinoma mammae",ru:"Рак молочной железы",en:"Breast cancer",desc:"Ko'krak bezining xavfli o'smasi"},
+{id:281,cat:'gynecology',uz:"Bachadon bo'yni o'smasi",lat:"Carcinoma cervicis uteri",ru:"Рак шейки матки",en:"Cervical cancer",desc:"Bachadon bo'ynining xavfli o'smasi, HPV bilan bog'liq"},
+{id:282,cat:'gynecology',uz:"Amenoreya",lat:"Amenorrhoea",ru:"Аменорея",en:"Amenorrhoea",desc:"Hayz ko'rishning to'xtashi yoki kechikishi"},
+{id:283,cat:'gynecology',uz:"Dismenoreya",lat:"Dysmenorrhoea",ru:"Дисменорея",en:"Dysmenorrhoea",desc:"Hayz davrida kuchli og'riq"},
+{id:284,cat:'gynecology',uz:"Klimaks (menopauza)",lat:"Menopausa",ru:"Менопауза",en:"Menopause",desc:"Hayz ko'rishning biologik to'xtashi (odatda 45-55 yosh)"},
+{id:285,cat:'gynecology',uz:"Gesteroz",lat:"Gestosis",ru:"Гестоз",en:"Gestosis",desc:"Homiladorlikning patologik kechishi"},
+{id:286,cat:'gynecology',uz:"Laktatsiya",lat:"Lactatio",ru:"Лактация",en:"Lactation",desc:"Ko'krak suti ishlab chiqarish va emizish jarayoni"},
+{id:287,cat:'gynecology',uz:"Mastit",lat:"Mastitis",ru:"Мастит",en:"Mastitis",desc:"Ko'krak bezining yallig'lanishi, ko'pincha emizishda"},
+{id:288,cat:'gynecology',uz:"Kolposkopiya",lat:"Colposcopia",ru:"Кольпоскопия",en:"Colposcopy",desc:"Bachadon bo'yni va qinni optik asbob bilan ko'rik"},
+{id:289,cat:'gynecology',uz:"Gisteroskopiya",lat:"Hysteroscopia",ru:"Гистероскопия",en:"Hysteroscopy",desc:"Bachadon ichini endoskop bilan ko'rish"},
+{id:290,cat:'gynecology',uz:"Fertilizatsiya (urug'lanish)",lat:"Fertilisatio",ru:"Оплодотворение",en:"Fertilisation",desc:"Sperma va tuxum hujayrasining birlashishi"},
+
+// ===================== PEDIATRIYA =====================
+{id:291,cat:'pediatrics',uz:"Yangi tug'ilgan chaqaloq",lat:"Neonatus",ru:"Новорождённый",en:"Newborn / Neonate",desc:"Hayotining dastlabki 28 kunidagi bola"},
+{id:292,cat:'pediatrics',uz:"Go'daklik davri",lat:"Infantia",ru:"Младенческий возраст",en:"Infancy",desc:"Hayotning dastlabki bir yili"},
+{id:293,cat:'pediatrics',uz:"Chaqaloq sarg'ayishi",lat:"Icterus neonatorum",ru:"Желтуха новорождённых",en:"Neonatal jaundice",desc:"Yangi tug'ilgan bolalarda bilirubin ko'tarilishi"},
+{id:294,cat:'pediatrics',uz:"Emizishda nafas qisishi",lat:"Dyspnoea neonatalis",ru:"Асфиксия новорождённого",en:"Neonatal asphyxia",desc:"Chaqaloqda kislorod yetishmovchiligi"},
+{id:295,cat:'pediatrics',uz:"Bolalar rakiti",lat:"Rachitis infantilis",ru:"Рахит у детей",en:"Rickets in children",desc:"Bolalarda D vitamini yetishmovchiligi sababli suyak deformatsiyasi"},
+{id:296,cat:'pediatrics',uz:"Bolalar pnevmoniyasi",lat:"Pneumonia infantilis",ru:"Детская пневмония",en:"Paediatric pneumonia",desc:"Bolalarda o'pka yallig'lanishi"},
+{id:297,cat:'pediatrics',uz:"Rotavirus infeksiyasi",lat:"Infectio rotaviralis",ru:"Ротавирусная инфекция",en:"Rotavirus infection",desc:"Bolalarda ich ketishi va qusishning asosiy sababi"},
+{id:298,cat:'pediatrics',uz:"Skarlatina",lat:"Scarlatina",ru:"Скарлатина",en:"Scarlet fever",desc:"Streptokokk qo'zg'atuvchi teri toshmasi bilan kechadigan kasallik"},
+{id:299,cat:'pediatrics',uz:"Bolalar falaji (poliomielit)",lat:"Poliomyelitis",ru:"Полиомиелит",en:"Poliomyelitis",desc:"Poliovirus qo'zg'atadigan, mushaklarni falaj qiladigan kasallik"},
+{id:300,cat:'pediatrics',uz:"Ko'kyo'tal",lat:"Pertussis",ru:"Коклюш",en:"Whooping cough",desc:"Bordetella pertussis qo'zg'atadigan kuchli yo'tal bilan kechadigan kasallik"},
+{id:301,cat:'pediatrics',uz:"Quloq yallig'lanishi",lat:"Otitis media",ru:"Отит среднего уха",en:"Otitis media",desc:"O'rta quloq yallig'lanishi, bolalarda tez-tez uchraydi"},
+{id:302,cat:'pediatrics',uz:"Angina (bodomsimon bez yallig'lanishi)",lat:"Tonsillitis acuta / Angina",ru:"Ангина / Острый тонзиллит",en:"Acute tonsillitis",desc:"Bodomsimon bezlarning o'tkir yallig'lanishi"},
+{id:303,cat:'pediatrics',uz:"Adenoid",lat:"Adenoidea",ru:"Аденоиды",en:"Adenoids",desc:"Yutqindagi limfoid to'qimaning kattalashishi"},
+{id:304,cat:'pediatrics',uz:"Bolalar astmasi",lat:"Asthma bronchiale infantilis",ru:"Детская бронхиальная астма",en:"Paediatric asthma",desc:"Bolalarda nafas yo'llari torayishi bilan kechadigan allergik kasallik"},
+{id:305,cat:'pediatrics',uz:"Atiрik dermatit",lat:"Dermatitis atopica",ru:"Атопический дерматит",en:"Atopic dermatitis",desc:"Bolalarda qichishish va toshmalar bilan kechadigan allergik teri kasalligi"},
+{id:306,cat:'pediatrics',uz:"Autizm spektri",lat:"Autismus",ru:"Расстройство аутистического спектра (РАС)",en:"Autism spectrum disorder",desc:"Ijtimoiy muloqot va xatti-harakatning rivojlanish buzilishi"},
+{id:307,cat:'pediatrics',uz:"Giperbilirubinemiya",lat:"Hyperbilirubinaemia",ru:"Гипербилирубинемия",en:"Hyperbilirubinaemia",desc:"Qonda bilirubin miqdorining patologik ko'tarilishi"},
+{id:308,cat:'pediatrics',uz:"Bolalar diabet",lat:"Diabetes mellitus infantilis",ru:"Детский сахарный диабет",en:"Childhood diabetes",desc:"Bolalarda ko'pincha 1-tur diabet uchraydi"},
+{id:309,cat:'pediatrics',uz:"Bolalar epilepsiyasi",lat:"Epilepsia infantilis",ru:"Детская эпилепсия",en:"Paediatric epilepsy",desc:"Bolalarda takroriy tutqanoqlar bilan kechadigan kasallik"},
+{id:310,cat:'pediatrics',uz:"Febrili tutqanoq",lat:"Convulsio febrilis",ru:"Febрильные судороги",en:"Febrile convulsion",desc:"Isitma paytida bolalarda paydo bo'ladigan tutqanoq"},
+{id:311,cat:'pediatrics',uz:"Down sindromi",lat:"Syndroma Down (Trisomia 21)",ru:"Синдром Дауна",en:"Down syndrome",desc:"21-xromosomaning trisomiyasidan kelib chiqqan genetik holat"},
+{id:312,cat:'pediatrics',uz:"Serebrаl falaj",lat:"Paralysis cerebralis infantilis",ru:"Детский церебральный паралич (ДЦП)",en:"Cerebral palsy",desc:"Miya zarar ko'rishi sababli harakat buzilishi"},
+{id:313,cat:'pediatrics',uz:"Isitma",lat:"Febris",ru:"Лихорадка",en:"Fever",desc:"Tana haroratining >37.5°C ga ko'tarilishi"},
+{id:314,cat:'pediatrics',uz:"Degidratasiya",lat:"Dehydratio",ru:"Обезвоживание",en:"Dehydration",desc:"Organizmdan suyuqlik yo'qotilishi"},
+{id:315,cat:'pediatrics',uz:"Bolalar ich ketishi",lat:"Diarrhoea infantilis",ru:"Детская диарея",en:"Paediatric diarrhoea",desc:"Bolalarda suyuq axlat chiqishi, suvsizlanish xavfi bor"},
+{id:316,cat:'pediatrics',uz:"Chaqaloqni emizish",lat:"Lactatio materna / Allattamento",ru:"Грудное вскармливание",en:"Breastfeeding",desc:"Onaning ko'krak suti bilan bolani oziqlantirishs"},
+{id:317,cat:'pediatrics',uz:"Vaksinatsiya (bolalar)",lat:"Vaccinatio infantilis",ru:"Вакцинация детей",en:"Childhood vaccination",desc:"Kasalliklarga qarshi emlab yuborish jadvali"},
+{id:318,cat:'pediatrics',uz:"Intrauterin o'sish",lat:"Retardatio crescentiae intrauterinae",ru:"Задержка внутриутробного развития",en:"Intrauterine growth restriction",desc:"Homilaning qorin ichida etarli o'smasligi"},
+{id:319,cat:'pediatrics',uz:"Gijja kasalligi",lat:"Helminthiasis",ru:"Гельминтоз",en:"Helminthiasis",desc:"Ichakdagi parazit qurtlar kasalligi"},
+{id:320,cat:'pediatrics',uz:"Anomaliya (tug'ma)",lat:"Anomalia congenitalis",ru:"Врождённая аномалия",en:"Congenital anomaly",desc:"Tug'ilishdan mavjud bo'lgan a'zo yoki tuzilish nuqsoni"},
+
+// ===================== NEVROLOGIYA =====================
+{id:321,cat:'neurology',uz:"Bosh og'riq",lat:"Cephalalgia",ru:"Головная боль",en:"Headache",desc:"Bosh sohasidagi har xil og'riq"},
+{id:322,cat:'neurology',uz:"Migren",lat:"Migraena",ru:"Мигрень",en:"Migraine",desc:"Bir tomonlama kuchli bosh og'riq, ko'ngil aynish bilan"},
+{id:323,cat:'neurology',uz:"Bosh aylanishi",lat:"Vertigo",ru:"Головокружение",en:"Vertigo",desc:"Atrof-muhitning aylanish hissi, muvozanat buzilishi"},
+{id:324,cat:'neurology',uz:"Epileptik tutqanoq",lat:"Ictus epilepticus",ru:"Эпилептический приступ",en:"Epileptic seizure",desc:"Miyaning bir vaqtda ko'p nerv hujayrasining qo'zg'alishi"},
+{id:325,cat:'neurology',uz:"Insult (gemorragik)",lat:"Insultus haemorrhagicus",ru:"Геморрагический инсульт",en:"Haemorrhagic stroke",desc:"Miya ichiga qon quyilishi"},
+{id:326,cat:'neurology',uz:"Insult (ishemik)",lat:"Insultus ischaemicus",ru:"Ишемический инсульт",en:"Ischaemic stroke",desc:"Miyadagi qon tomiri tiqilib qon oqimining to'xtashi"},
+{id:327,cat:'neurology',uz:"Tranzitor ishemik ataka",lat:"Ictus ischaemicus transitorius (TIA)",ru:"Транзиторная ишемическая атака (ТИА)",en:"Transient ischaemic attack (TIA)",desc:"Insult belgilari bilan kechadigan vaqtinchalik epizod"},
+{id:328,cat:'neurology',uz:"Parkinson kasalligi",lat:"Morbus Parkinson",ru:"Болезнь Паркинсона",en:"Parkinson's disease",desc:"Qaltirama, mushaklarning qotishi bilan kechadigan neyrodegenerativ kasallik"},
+{id:329,cat:'neurology',uz:"Alzheimer kasalligi",lat:"Morbus Alzheimer",ru:"Болезнь Альцгеймера",en:"Alzheimer's disease",desc:"Xotira va kognitiv faoliyatning sekin yo'qolishi"},
+{id:330,cat:'neurology',uz:"Ko'p skleroz",lat:"Sclerosis multiplex",ru:"Рассеянный склероз",en:"Multiple sclerosis",desc:"Markaziy asab tizimi miyelinining demielinizatsiyasi"},
+{id:331,cat:'neurology',uz:"Amiotrofik lateral skleroz",lat:"Sclerosis lateralis amyotrophica (ALS)",ru:"Боковой амиотрофический склероз",en:"Amyotrophic lateral sclerosis (ALS)",desc:"Motor neyronlar progressiv shikastlanuvi kasalligi"},
+{id:332,cat:'neurology',uz:"Miya shishi",lat:"Oedema cerebri",ru:"Отёк мозга",en:"Cerebral oedema",desc:"Miya to'qimasida suyuqlik to'planishi, intrakranial bosim oshadi"},
+{id:333,cat:'neurology',uz:"Miya abstsessi",lat:"Abscessus cerebri",ru:"Абсцесс мозга",en:"Brain abscess",desc:"Miyada yiring to'planishi"},
+{id:334,cat:'neurology',uz:"Ensefalit",lat:"Encephalitis",ru:"Энцефалит",en:"Encephalitis",desc:"Bosh miyaning yallig'lanishi"},
+{id:335,cat:'neurology',uz:"Mielit",lat:"Myelitis",ru:"Миелит",en:"Myelitis",desc:"Orqa miyaning yallig'lanishi"},
+{id:336,cat:'neurology',uz:"Radikulit",lat:"Radiculitis / Radiculopathia",ru:"Радикулит",en:"Radiculopathy",desc:"Orqa miya nervlari ildizining siqilishi yoki yallig'lanishi"},
+{id:337,cat:'neurology',uz:"Neyropat",lat:"Neuropathia",ru:"Нейропатия",en:"Neuropathy",desc:"Periferik nerv tolasining shikastlanishi"},
+{id:338,cat:'neurology',uz:"Nevralg",lat:"Neuralgia",ru:"Невралгия",en:"Neuralgia",desc:"Nerv yo'nalishida kuchli o'tkinchi og'riq"},
+{id:339,cat:'neurology',uz:"Miya chayqalishi",lat:"Commotio cerebri",ru:"Сотрясение мозга",en:"Concussion",desc:"Bosh miyaning kuchsiz travmatik shikastlanishi"},
+{id:340,cat:'neurology',uz:"Subdural gematoma",lat:"Haematoma subdurale",ru:"Субдуральная гематома",en:"Subdural haematoma",desc:"Miya pardasi ostida qon to'planishi"},
+{id:341,cat:'neurology',uz:"Subaraxnoidal qon ketish",lat:"Haemorrhagia subarachnoidalis",ru:"Субарахноидальное кровоизлияние",en:"Subarachnoid haemorrhage",desc:"Miya pardasi bo'shlig'iga qon quyilishi"},
+{id:342,cat:'neurology',uz:"Gidrotsefaliya",lat:"Hydrocephalia",ru:"Гидроцефалия",en:"Hydrocephalus",desc:"Miyada orqa miya suyuqligining ortiqcha to'planishi"},
+{id:343,cat:'neurology',uz:"Anevrizm",lat:"Aneurysma",ru:"Аневризма",en:"Aneurysm",desc:"Qon tomiri devorining lokal kengayishi va bo'rtib chiqishi"},
+{id:344,cat:'neurology',uz:"Polyneyrit",lat:"Polyneuritis",ru:"Полиневрит",en:"Polyneuritis",desc:"Bir vaqtda ko'plab periferik nervlar yallig'lanishi"},
+{id:345,cat:'neurology',uz:"Miyastenia gravis",lat:"Myasthenia gravis",ru:"Миастения",en:"Myasthenia gravis",desc:"Neyromushak o'tkazuvchanliği buzilishi, tez charchash"},
+{id:346,cat:'neurology',uz:"Demensiya",lat:"Dementia",ru:"Деменция",en:"Dementia",desc:"Kognitiv qobiliyatlarning progressiv pasayishi"},
+{id:347,cat:'neurology',uz:"Depressiya (klinik)",lat:"Depressio (Morbus depressivus major)",ru:"Клиническая депрессия",en:"Major depressive disorder",desc:"Uzoq davomli kayfiyat tushishi, qiziqishlar yo'qolishi"},
+{id:348,cat:'neurology',uz:"Shizofreniya",lat:"Schizophrenia",ru:"Шизофрения",en:"Schizophrenia",desc:"Idrok, tafakkur va xatti-harakatning og'ir buzilishi"},
+{id:349,cat:'neurology',uz:"ADHD",lat:"Syndroma hyperactivitatis cum defectu attentionis",ru:"СДВГ",en:"ADHD",desc:"Diqqat tanqisligi va giperaktivlik sindromi"},
+{id:350,cat:'neurology',uz:"Uyqu apneyasi",lat:"Apnoea somnialis",ru:"Апноэ сна",en:"Sleep apnoea",desc:"Uyqu vaqtida nafas olishning vaqtincha to'xtashi"},
+
+// ===================== OFTALMOLOGIYA =====================
+{id:351,cat:'ophthalmology',uz:"Ko'rish o'tkirligi",lat:"Acuitas visus",ru:"Острота зрения",en:"Visual acuity",desc:"Ko'zning mayda tafsilotlarni ajrata olish qobiliyati"},
+{id:352,cat:'ophthalmology',uz:"Qisqa ko'rlik (miop)",lat:"Myopia",ru:"Близорукость (Миопия)",en:"Myopia (Short-sightedness)",desc:"Uzoqdagi narsalarning bulaniq ko'rinishi"},
+{id:353,cat:'ophthalmology',uz:"Uzoq ko'rlik (gipermetrop)",lat:"Hypermetropia",ru:"Дальнозоркость (Гиперметропия)",en:"Hyperopia (Long-sightedness)",desc:"Yaqindagi narsalarning bulaniq ko'rinishi"},
+{id:354,cat:'ophthalmology',uz:"Astigmatizm",lat:"Astigmatismus",ru:"Астигматизм",en:"Astigmatism",desc:"Ko'z shox pardasi yoki gavharining noto'g'ri shakli"},
+{id:355,cat:'ophthalmology',uz:"Katarakt",lat:"Cataracta",ru:"Катаракта",en:"Cataract",desc:"Ko'z gavharining loyqalanishi, ko'rish pasayadi"},
+{id:356,cat:'ophthalmology',uz:"Glaukoma",lat:"Glaucoma",ru:"Глаукома",en:"Glaucoma",desc:"Ko'z ichki bosimining oshishi, ko'rish nerviga zarar"},
+{id:357,cat:'ophthalmology',uz:"To'r parda ajralishi",lat:"Ablatio retinae",ru:"Отслоение сетчатки",en:"Retinal detachment",desc:"To'r pardaning taglik qatlamidan ajralishi"},
+{id:358,cat:'ophthalmology',uz:"Diabetik retinopatiya",lat:"Retinopathia diabetica",ru:"Диабетическая ретинопатия",en:"Diabetic retinopathy",desc:"Diabetda qon tomirlar buzilishi tufayli ko'z zarar ko'rishi"},
+{id:359,cat:'ophthalmology',uz:"Ko'z yalig'lanishi (konjunktivit)",lat:"Conjunctivitis",ru:"Конъюнктивит",en:"Conjunctivitis",desc:"Ko'z shilliq pardasi yallig'lanishi"},
+{id:360,cat:'ophthalmology',uz:"Keratit",lat:"Keratitis",ru:"Кератит",en:"Keratitis",desc:"Ko'z shox pardasining yallig'lanishi"},
+{id:361,cat:'ophthalmology',uz:"Iridotsiklit",lat:"Iridocyclitis / Uveitis anterior",ru:"Иридоциклит",en:"Iridocyclitis",desc:"Ko'z iris va kipriksimon tanasining yallig'lanishi"},
+{id:362,cat:'ophthalmology',uz:"Oshiq (xalazion)",lat:"Chalazion",ru:"Халазион",en:"Chalazion",desc:"Ko'z qovoq bezining surunkali to'siqlanishi"},
+{id:363,cat:'ophthalmology',uz:"Arpa (ya'ni hordeolum)",lat:"Hordeolum",ru:"Ячмень",en:"Stye (Hordeolum)",desc:"Ko'z qovoq yog' bezining o'tkir yallig'lanishi"},
+{id:364,cat:'ophthalmology',uz:"Ko'zning qurishi",lat:"Syndrome oculi sicci (Xerophthalmia)",ru:"Синдром сухого глаза",en:"Dry eye syndrome",desc:"Ko'z yoshi etarli ishlab chiqarilmasligi"},
+{id:365,cat:'ophthalmology',uz:"Makulyar degenerasiya",lat:"Degeneratio maculae lutea",ru:"Дегенерация жёлтого пятна",en:"Macular degeneration",desc:"To'r pardaning markaziy qismining shikastlanishi"},
+{id:366,cat:'ophthalmology',uz:"Ko'r nuqta",lat:"Scotoma",ru:"Скотома",en:"Scotoma",desc:"Ko'rish maydonidagi yo'qolgan yoki bulaniq soha"},
+{id:367,cat:'ophthalmology',uz:"Diplop",lat:"Diplopia",ru:"Диплопия",en:"Diplopia (Double vision)",desc:"Narsalarni juft ko'rish"},
+{id:368,cat:'ophthalmology',uz:"Ambliopiya",lat:"Amblyopia",ru:"Амблиопия",en:"Amblyopia (Lazy eye)",desc:"Bir ko'zning rivojlanishi kechikishi natijasidagi ko'rish pasayishi"},
+{id:369,cat:'ophthalmology',uz:"Qiyshaygan ko'z (strabishm)",lat:"Strabismus",ru:"Косоглазие",en:"Strabismus (Squint)",desc:"Ko'zlarning parallel bo'lmagan yo'nalishi"},
+{id:370,cat:'ophthalmology',uz:"Ko'z bosimi",lat:"Tensio ocularis",ru:"Внутриглазное давление",en:"Intraocular pressure",desc:"Ko'z ichidagi suyuqlik bosimi (normal 10-21 mmHg)"},
+{id:371,cat:'ophthalmology',uz:"Fundoskopiya",lat:"Fundoscopia (Ophthalmoscopia)",ru:"Фундоскопия",en:"Fundoscopy",desc:"Ko'z dibini ko'rikdan o'tkazish"},
+{id:372,cat:'ophthalmology',uz:"Laser ko'z davolash",lat:"Corrеctio visus laser (LASIK)",ru:"Лазерная коррекция зрения",en:"Laser eye surgery (LASIK)",desc:"Ko'rish nuqsonini lazer bilan tuzatish"},
+{id:373,cat:'ophthalmology',uz:"Katarakt operatsiyasi",lat:"Extractio cataractae",ru:"Операция по удалению катаракты",en:"Cataract surgery",desc:"Loyqa ko'z gavharini sun'iy lins bilan almashtirish"},
+{id:374,cat:'ophthalmology',uz:"Ko'z tomiri tiqilishi",lat:"Occlusio venae retinae",ru:"Окклюзия сосудов сетчатки",en:"Retinal vein occlusion",desc:"To'r parda venasining to'silishi, ko'rish yo'qotilishi xavfi"},
+{id:375,cat:'ophthalmology',uz:"Ekzoftalmiya (ko'z bo'rtishi)",lat:"Exophthalmus",ru:"Экзофтальм",en:"Exophthalmos",desc:"Ko'z olmachasining oldinga bo'rtib chiqishi"},
+{id:376,cat:'ophthalmology',uz:"Nistam",lat:"Nystagmus",ru:"Нистагм",en:"Nystagmus",desc:"Ko'z olmachasining ixtiyorsiz tebranuvchi harakati"},
+{id:377,cat:'ophthalmology',uz:"Pterigium",lat:"Pterygium",ru:"Птеригиум",en:"Pterygium",desc:"Ko'z yuzasini qoplaydigan uchburchak to'qima o'sishi"},
+{id:378,cat:'ophthalmology',uz:"Ko'z jarohati",lat:"Trauma oculi",ru:"Травма глаза",en:"Eye injury",desc:"Mexanik, kimyoviy yoki fizik ta'sirdan ko'z shikastlanishi"},
+{id:379,cat:'ophthalmology',uz:"Periorbital shish",lat:"Oedema periоrbitale",ru:"Периорбитальный отёк",en:"Periorbital oedema",desc:"Ko'z atrofidagi yumshoq to'qimalar shishishi"},
+{id:380,cat:'ophthalmology',uz:"Ko'z ulkaligi (gigantizm)",lat:"Buphthalmus / Megalocornea",ru:"Буфтальм",en:"Buphthalmos",desc:"Ko'z olmachasining patologik kattalashishi, ko'pincha tug'ma glaukomada"},
+
+// ===================== BIOKIMYO =====================
+{id:381,cat:'biochemistry',uz:"Oqsil",lat:"Proteinum / Albuminum",ru:"Белок",en:"Protein",desc:"Aminokislotalardan tuzilgan biologik makromolekula"},
+{id:382,cat:'biochemistry',uz:"Ferment (enzim)",lat:"Fermentum / Enzymum",ru:"Фермент / Энзим",en:"Enzyme",desc:"Kimyoviy reaktsiyalarni tezlashtiruvchi biologik katalizator"},
+{id:383,cat:'biochemistry',uz:"Gormon",lat:"Hormonum",ru:"Гормон",en:"Hormone",desc:"Bezlar tomonidan qonga ajratiladigan signal molekulasi"},
+{id:384,cat:'biochemistry',uz:"Glyukoza",lat:"Glucosum",ru:"Глюкоза",en:"Glucose",desc:"Organizmning asosiy energiya manbai — oddiy qand"},
+{id:385,cat:'biochemistry',uz:"Fruktozа",lat:"Fructosum",ru:"Фруктоза",en:"Fructose",desc:"Meva qandlari tarkibidagi monosaxarid"},
+{id:386,cat:'biochemistry',uz:"Saharoza",lat:"Saccharosum",ru:"Сахароза",en:"Sucrose",desc:"Glyukoza va fruktoza birikmasidan iborat disaxarid"},
+{id:387,cat:'biochemistry',uz:"Glikogen",lat:"Glycogenum",ru:"Гликоген",en:"Glycogen",desc:"Jigar va mushakda zahira sifatida saqlanadigan polisaxarid"},
+{id:388,cat:'biochemistry',uz:"Yog' kislota",lat:"Acidum fattyacidicum",ru:"Жирная кислота",en:"Fatty acid",desc:"Yog' molekulasining asosiy tarkibiy qismi"},
+{id:389,cat:'biochemistry',uz:"Triglyserid",lat:"Triglyceridum",ru:"Триглицерид",en:"Triglyceride",desc:"Uchta yog' kislotasi va glitseroldan iborat yog' molekulasi"},
+{id:390,cat:'biochemistry',uz:"Xolesterin",lat:"Cholesterolum",ru:"Холестерин",en:"Cholesterol",desc:"Hujayra membranasining muhim tarkibiy qismi, steroid gormonlar asosi"},
+{id:391,cat:'biochemistry',uz:"HDL (yuqori zichlikli lipoprotein)",lat:"Lipoproteinum densitatis altae (HDL)",ru:"ЛПВП (липопротеины высокой плотности)",en:"High-density lipoprotein (HDL)",desc:"Xolesterinni arteriyalardan tashib jigarга qaytaruvchi 'yaxshi' lipoprotein"},
+{id:392,cat:'biochemistry',uz:"LDL (past zichlikli lipoprotein)",lat:"Lipoproteinum densitatis bassae (LDL)",ru:"ЛПНП (липопротеины низкой плотности)",en:"Low-density lipoprotein (LDL)",desc:"Arteriya devorida tiqilib ateroskleroz keltiradigan 'yomon' lipoprotein"},
+{id:393,cat:'biochemistry',uz:"Aminokislota",lat:"Aminoacidum",ru:"Аминокислота",en:"Amino acid",desc:"Oqsillarning qurilish materiali, 20 turi mavjud"},
+{id:394,cat:'biochemistry',uz:"Muhim aminokislota",lat:"Aminoacidum essentiale",ru:"Незаменимая аминокислота",en:"Essential amino acid",desc:"Ovqat orqali qabul qilinishi shart bo'lgan 9 ta aminokislota"},
+{id:395,cat:'biochemistry',uz:"DNK (dezoksiribonuklein kislota)",lat:"Acidum deoxyribonucleicum (DNA)",ru:"ДНК (дезоксирибонуклеиновая кислота)",en:"DNA (Deoxyribonucleic acid)",desc:"Irsiy ma'lumotlarni saqlaydigan ikki zanjirli molekula"},
+{id:396,cat:'biochemistry',uz:"RNK (ribonuklein kislota)",lat:"Acidum ribonucleicum (RNA)",ru:"РНК (рибонуклеиновая кислота)",en:"RNA (Ribonucleic acid)",desc:"Oqsil sintezida oraliq rol o'ynaydigan molekula"},
+{id:397,cat:'biochemistry',uz:"ATP (adenozin trifosfat)",lat:"Adenosinum triphosphoricum (ATP)",ru:"АТФ (аденозинтрифосфат)",en:"ATP (Adenosine triphosphate)",desc:"Hujayraning asosiy energiya valyutasi"},
+{id:398,cat:'biochemistry',uz:"Glikoliz",lat:"Glycolysis",ru:"Гликолиз",en:"Glycolysis",desc:"Glyukozani piruvat kislotasiga parchalash jarayoni"},
+{id:399,cat:'biochemistry',uz:"Krebs sikli",lat:"Cyclus Krebs (Cyclus acidi citrici)",ru:"Цикл Кребса",en:"Krebs cycle (Citric acid cycle)",desc:"Hujayra mitoxondriyasidagi asosiy energiya ishlab chiqarish sikli"},
+{id:400,cat:'biochemistry',uz:"Oksidlovchi fosforlanish",lat:"Phosphorylatio oxidativa",ru:"Окислительное фосфорилирование",en:"Oxidative phosphorylation",desc:"Mitoxondriyada ATP hosil qilishning asosiy yo'li"},
+{id:401,cat:'biochemistry',uz:"Fermentatsiya",lat:"Fermentatio",ru:"Брожение / Ферментация",en:"Fermentation",desc:"Kislorodsiz sharoitda glyukozadan energiya olish jarayoni"},
+{id:402,cat:'biochemistry',uz:"Metabolizm",lat:"Metabolismus",ru:"Метаболизм",en:"Metabolism",desc:"Organizmda sodir bo'ladigan barcha kimyoviy reaktsiyalar majmui"},
+{id:403,cat:'biochemistry',uz:"Anabolizm",lat:"Anabolismus",ru:"Анаболизм",en:"Anabolism",desc:"Oddiy moddalardan murakkab molekulalar sintezlash jarayoni"},
+{id:404,cat:'biochemistry',uz:"Katabolizm",lat:"Catabolismus",ru:"Катаболизм",en:"Catabolism",desc:"Murakkab molekulalarni oddiy moddalarga parchalash jarayoni"},
+{id:405,cat:'biochemistry',uz:"Oksidlanish",lat:"Oxidatio",ru:"Окисление",en:"Oxidation",desc:"Elektron yo'qotish yoki kislorod qo'shish kimyoviy reaktsiyasi"},
+{id:406,cat:'biochemistry',uz:"Qaytarilish",lat:"Reductio",ru:"Восстановление",en:"Reduction",desc:"Elektron qabul qilish yoki vodorod qo'shish kimyoviy reaktsiyasi"},
+{id:407,cat:'biochemistry',uz:"pH",lat:"Potentia hydrogenii (pH)",ru:"pH (кислотность)",en:"pH (Potential of hydrogen)",desc:"Eritma kislota-ishqorlik darajasini o'lchash ko'rsatkichi (0-14)"},
+{id:408,cat:'biochemistry',uz:"Kislota-asos muvozanati",lat:"Aequilibrium acidobasicum",ru:"Кислотно-щелочное равновесие",en:"Acid-base balance",desc:"Organizmda pH ning 7.35-7.45 oralig'ida ushlab turilishi"},
+{id:409,cat:'biochemistry',uz:"Atsidoz",lat:"Acidosis",ru:"Ацидоз",en:"Acidosis",desc:"Qon pH ning 7.35 dan pastga tushishi"},
+{id:410,cat:'biochemistry',uz:"Alkaloz",lat:"Alkalosis",ru:"Алкалоз",en:"Alkalosis",desc:"Qon pH ning 7.45 dan yuqoriga ko'tarilishi"},
+{id:411,cat:'biochemistry',uz:"Bilirubin",lat:"Bilirubinum",ru:"Билирубин",en:"Bilirubin",desc:"Gemoglobin parchalanishidan hosil bo'ladigan sariq pigment"},
+{id:412,cat:'biochemistry',uz:"Kreatinin",lat:"Creatininum",ru:"Креатинин",en:"Creatinine",desc:"Buyrak funksiyasini baholashda ishlatiladigan muskul chiqindi moddasi"},
+{id:413,cat:'biochemistry',uz:"Siydik kislota",lat:"Acidum uricum",ru:"Мочевая кислота",en:"Uric acid",desc:"Purin almashinuvining yakuniy mahsuloti; podagrada ko'tariladi"},
+{id:414,cat:'biochemistry',uz:"Mochevina",lat:"Urea",ru:"Мочевина",en:"Urea",desc:"Azot chiqindilarining asosiy shakli, buyrak orqali chiqariladi"},
+{id:415,cat:'biochemistry',uz:"ALT (alanin aminotransferaza)",lat:"Alaninum aminotransferasa (ALT)",ru:"АЛТ (аланинаминотрансфераза)",en:"ALT (Alanine aminotransferase)",desc:"Jigar shikastlanishida qonga chiqadigan ferment"},
+{id:416,cat:'biochemistry',uz:"AST (aspartat aminotransferaza)",lat:"Aspartatum aminotransferasa (AST)",ru:"АСТ (аспартатаминотрансфераза)",en:"AST (Aspartate aminotransferase)",desc:"Jigar va yurak shikastlanishini ko'rsatuvchi ferment"},
+{id:417,cat:'biochemistry',uz:"Amilaza",lat:"Amylasa",ru:"Амилаза",en:"Amylase",desc:"Kraxmalni parchalovchi ferment; pankreatitda qonda ko'tariladi"},
+{id:418,cat:'biochemistry',uz:"Lipaza",lat:"Lipasa",ru:"Липаза",en:"Lipase",desc:"Yog'larni parchalovchi ferment; pankreatitda diagnostik ahamiyati bor"},
+{id:419,cat:'biochemistry',uz:"Laktat degidrogenza (LDH)",lat:"Lactas dehydrogenasa (LDH)",ru:"Лактатдегидрогеназа (ЛДГ)",en:"Lactate dehydrogenase (LDH)",desc:"To'qima shikastlanishining nospesifik markeri"},
+{id:420,cat:'biochemistry',uz:"Troponin",lat:"Troponinum",ru:"Тропонин",en:"Troponin",desc:"Yurak mushagi shikastlanishining eng sezgir markeri (infarkt diagnostikasi)"},
+{id:421,cat:'biochemistry',uz:"Albumin",lat:"Albuminum",ru:"Альбумин",en:"Albumin",desc:"Qon plazmasining asosiy oqsili, osmotik bosimni saqlab turadi"},
+{id:422,cat:'biochemistry',uz:"Globulin",lat:"Globulinum",ru:"Глобулин",en:"Globulin",desc:"Immunoglobulinlar va transport oqsillarini o'z ichiga oluvchi oqsil guruhi"},
+{id:423,cat:'biochemistry',uz:"Fibrinogen",lat:"Fibrinogenum",ru:"Фибриноген",en:"Fibrinogen",desc:"Qon ivishi uchun muhim oqsil — fibrin hosil qiladi"},
+{id:424,cat:'biochemistry',uz:"Insulin sekretsiyasi",lat:"Secretio insulini",ru:"Секреция инсулина",en:"Insulin secretion",desc:"Qon glyukozasi oshganda beta-hujayralardan insulin ajralishi"},
+{id:425,cat:'biochemistry',uz:"Glyukagon",lat:"Glucagonum",ru:"Глюкагон",en:"Glucagon",desc:"Qon glyukozasini oshiruvchi gormon, insulinga qarama-qarshi ta'sir"},
+{id:426,cat:'biochemistry',uz:"Kortizol",lat:"Cortisolum",ru:"Кортизол",en:"Cortisol",desc:"Stress gormonи, yallig'lanishni bostiradi, qand miqdorini oshiradi"},
+{id:427,cat:'biochemistry',uz:"Adrenalin (epinefrin)",lat:"Adrenalinum / Epinephrinum",ru:"Адреналин (Эпинефрин)",en:"Adrenaline (Epinephrine)",desc:"Stress paytida ajraladigan gormon — yurak urishi va qon bosimini oshiradi"},
+{id:428,cat:'biochemistry',uz:"Noradrenalin",lat:"Noradrenalinum / Norepinephrinum",ru:"Норадреналин",en:"Noradrenaline",desc:"Tomir toraytiruvchi va qo'zg'ovchi neyrotransmitter va gormon"},
+{id:429,cat:'biochemistry',uz:"Tireoid gormonlar (T3, T4)",lat:"Hormona thyroidea (T3, T4)",ru:"Тиреоидные гормоны (Т3, Т4)",en:"Thyroid hormones (T3, T4)",desc:"Metabolizm tezligini boshqaruvchi qalqonsimon bez gormonlari"},
+{id:430,cat:'biochemistry',uz:"TSH (tireotropin)",lat:"Hormonum thyreotropicum (TSH)",ru:"ТТГ (тиреотропный гормон)",en:"TSH (Thyroid-stimulating hormone)",desc:"Gipofizdan ajraladigan qalqonsimon bezni rag'batlantiruvchi gormon"},
+{id:431,cat:'biochemistry',uz:"Estrogen",lat:"Oestrogenum",ru:"Эстроген",en:"Oestrogen",desc:"Asosiy ayol jinsiy gormoni, tuxumdondan ishlab chiqariladi"},
+{id:432,cat:'biochemistry',uz:"Progesteron",lat:"Progesteronun",ru:"Прогестерон",en:"Progesterone",desc:"Homiladorlikni saqlashda asosiy rol o'ynaydigan jinsiy gormon"},
+{id:433,cat:'biochemistry',uz:"Testosteron",lat:"Testosteronum",ru:"Тестостерон",en:"Testosterone",desc:"Asosiy erkak jinsiy gormoni, muskul o'sishiga ham ta'sir qiladi"},
+{id:434,cat:'biochemistry',uz:"Melatonin",lat:"Melatoninum",ru:"Мелатонин",en:"Melatonin",desc:"Uyqu-uyg'oqlik siklini boshqaruvchi epifiz gormoni"},
+{id:435,cat:'biochemistry',uz:"Serotonin",lat:"Serotoninum",ru:"Серотонин",en:"Serotonin",desc:"Kayfiyat, uyqu va ishtahani boshqaruvchi neyrotransmitter"},
+{id:436,cat:'biochemistry',uz:"Dopamin",lat:"Dopaminum",ru:"Дофамин",en:"Dopamine",desc:"Mukofot, motivatsiya va harakat koordinatsiyasini boshqaruvchi neyrotransmitter"},
+{id:437,cat:'biochemistry',uz:"Asetilxolin",lat:"Acetylcholinum",ru:"Ацетилхолин",en:"Acetylcholine",desc:"Neyromushak o'tkazuvchanligidagi asosiy neyrotransmitter"},
+{id:438,cat:'biochemistry',uz:"GABA",lat:"Acidum gamma-aminobutyricum (GABA)",ru:"ГАМК (гамма-аминомасляная кислота)",en:"GABA (Gamma-aminobutyric acid)",desc:"Asab tizimining asosiy tormozlovchi neyrotransmiteri"},
+{id:439,cat:'biochemistry',uz:"Oksitotsin",lat:"Oxytocinum",ru:"Окситоцин",en:"Oxytocin",desc:"Tug'ruqda bachadon qisqarishi va emizishni ta'minlovchi gormon"},
+{id:440,cat:'biochemistry',uz:"Vazopressin (ADG)",lat:"Vasopressinum (ADH)",ru:"Вазопрессин (АДГ)",en:"Vasopressin (ADH)",desc:"Suvni saqlash va tomir tonusini boshqaruvchi gormon"},
+{id:441,cat:'biochemistry',uz:"Prostaglandin",lat:"Prostaglandinum",ru:"Простагландин",en:"Prostaglandin",desc:"Yallig'lanish, og'riq va isitmada ishtirok etuvchi lipid mediatori"},
+{id:442,cat:'biochemistry',uz:"Sitokinin",lat:"Cytokinum",ru:"Цитокин",en:"Cytokine",desc:"Immunitet hujayralar aloqasini ta'minlovchi signal oqsillari"},
+{id:443,cat:'biochemistry',uz:"Interferon",lat:"Interferonun",ru:"Интерферон",en:"Interferon",desc:"Virus infeksiyasiga qarshi hujayra himoyasini uyg'otuvchi oqsil"},
+{id:444,cat:'biochemistry',uz:"Antikor (immunoglobulin)",lat:"Immunoglobulinum",ru:"Антитело (Иммуноглобулин)",en:"Antibody (Immunoglobulin)",desc:"B-limfotsitlar tomonidan ishlab chiqarilgan antigenga bog'lovchi oqsil"},
+{id:445,cat:'biochemistry',uz:"Komplement tizimi",lat:"Systema complementi",ru:"Система комплемента",en:"Complement system",desc:"Immunitetning ishtiroki uchun zarur bo'lgan oqsillar kaskadi"},
+{id:446,cat:'biochemistry',uz:"Oksidlanish stressi",lat:"Stress oxidativus",ru:"Оксидативный стресс",en:"Oxidative stress",desc:"Erkin radikallar ko'payishi bilan antioksidant himoyaning muvozanatsizligi"},
+{id:447,cat:'biochemistry',uz:"Erkin radikal",lat:"Radicale liberum",ru:"Свободный радикал",en:"Free radical",desc:"Juftlashmagan elektroni bo'lgan reaktiv molekula, hujayralarga zarar keltiradi"},
+{id:448,cat:'biochemistry',uz:"Antioksidant",lat:"Antioxidans",ru:"Антиоксидант",en:"Antioxidant",desc:"Erkin radikallarni zararsizlantiradigan modda"},
+{id:449,cat:'biochemistry',uz:"Kollagen",lat:"Collagaenum",ru:"Коллаген",en:"Collagen",desc:"Teritenglik, suyak, tog'ay va paylarning asosiy tarkibiy oqsili"},
+{id:450,cat:'biochemistry',uz:"Elastin",lat:"Elastinum",ru:"Эластин",en:"Elastin",desc:"To'qimalar elastikligini ta'minlaydigan oqsil"},
+{id:451,cat:'biochemistry',uz:"Keratin",lat:"Keratinum",ru:"Кератин",en:"Keratin",desc:"Teri, soch va tirnoqning asosiy himoya oqsili"},
+{id:452,cat:'biochemistry',uz:"Mioglobin",lat:"Myoglobinum",ru:"Миоглобин",en:"Myoglobin",desc:"Muskul to'qimasidagi kislorod saqlash oqsili"},
+{id:453,cat:'biochemistry',uz:"Transferrin",lat:"Transferrinum",ru:"Трансферрин",en:"Transferrin",desc:"Qondan temir tashuvchi oqsil"},
+{id:454,cat:'biochemistry',uz:"Ferritin",lat:"Ferritinum",ru:"Ферритин",en:"Ferritin",desc:"Organizmda temir zahirasini saqlaydi; laboratoriyada temir darajasini ko'rsatadi"},
+{id:455,cat:'biochemistry',uz:"Lipoprotein",lat:"Lipoproteinum",ru:"Липопротеин",en:"Lipoprotein",desc:"Yog'larni qon orqali tashuvchi oqsil-yog' kompleksi"},
+{id:456,cat:'biochemistry',uz:"Fosfolipid",lat:"Phospholipidum",ru:"Фосфолипид",en:"Phospholipid",desc:"Hujayra membranasining asosiy qo'sh qavat tarkibiy qismi"},
+{id:457,cat:'biochemistry',uz:"Steroid",lat:"Steroidum",ru:"Стероид",en:"Steroid",desc:"Xolesteringa asoslangan yog' molekulasi guruhi; gormonlar va D vitamini"},
+{id:458,cat:'biochemistry',uz:"Purin",lat:"Purinum",ru:"Пурин",en:"Purine",desc:"DNK/RNK tarkibidagi adenin va guanin bazalarining asosi"},
+{id:459,cat:'biochemistry',uz:"Pirimidin",lat:"Pyrimidinum",ru:"Пиримидин",en:"Pyrimidine",desc:"DNK/RNK tarkibidagi sitozin, timin va urasil bazalarining asosi"},
+{id:460,cat:'biochemistry',uz:"Koenzim",lat:"Coenzyma",ru:"Кофермент",en:"Coenzyme",desc:"Ferment faoliyatida yordam beradigan kichik organik molekula (ko'p vitaminlar)"},
+{id:461,cat:'biochemistry',uz:"NAD/NADH",lat:"Nicotinamidum adeninum dinucleotidum",ru:"НАД/НАДН",en:"NAD/NADH",desc:"Hujayra nafasida elektron tashuvchi koenzim"},
+{id:462,cat:'biochemistry',uz:"Glykolipid",lat:"Glycolipidum",ru:"Гликолипид",en:"Glycolipid",desc:"Qand guruhi tutuvchi lipid, hujayra membranasida signal beradi"},
+{id:463,cat:'biochemistry',uz:"Proteaz",lat:"Proteasa",ru:"Протеаза",en:"Protease",desc:"Oqsillarni aminokislotalarga parchalovchi ferment"},
+{id:464,cat:'biochemistry',uz:"Nukleaz",lat:"Nucleasa",ru:"Нуклеаза",en:"Nuclease",desc:"Nuklein kislotalarni parchalovchi ferment"},
+{id:465,cat:'biochemistry',uz:"Kinaza",lat:"Kinasa",ru:"Киназа",en:"Kinase",desc:"ATFdan fosfat guruhini boshqa molekulaga o'tkazuvchi ferment"},
+{id:466,cat:'biochemistry',uz:"Fosforillanish",lat:"Phosphorylatio",ru:"Фосфорилирование",en:"Phosphorylation",desc:"Molekulaga fosfat guruhi qo'shish orqali uning faolligini o'zgartirish"},
+{id:467,cat:'biochemistry',uz:"Glyukoneogenez",lat:"Gluconeogenesis",ru:"Глюконеогенез",en:"Gluconeogenesis",desc:"Jigar va buyrak po'stlog'ida glyukozani oqsil va yog'lardan hosil qilish"},
+{id:468,cat:'biochemistry',uz:"Lipoliz",lat:"Lipolysis",ru:"Липолиз",en:"Lipolysis",desc:"Yog' to'qimasida trigliseridlarning yog' kislotalarga parchalanishi"},
+{id:469,cat:'biochemistry',uz:"Beta-oksidlanish",lat:"Beta-oxidatio",ru:"Бета-окисление",en:"Beta-oxidation",desc:"Yog' kislotalarini mitoxondriyada ATFga aylantirish jarayoni"},
+{id:470,cat:'biochemistry',uz:"Transamlasyon",lat:"Translatio",ru:"Трансляция",en:"Translation",desc:"mRNK qolipida ribosomada oqsil sintezi jarayoni"},
+{id:471,cat:'biochemistry',uz:"Transkriptsiya",lat:"Transcriptio",ru:"Транскрипция",en:"Transcription",desc:"DNK qolipida mRNK sintez qilish jarayoni"},
+{id:472,cat:'biochemistry',uz:"Replikatsiya",lat:"Replicatio",ru:"Репликация",en:"Replication",desc:"DNKning ikkilanishi — hujayrа bo'linishidan oldin"},
+{id:473,cat:'biochemistry',uz:"Mutatsiya",lat:"Mutatio",ru:"Мутация",en:"Mutation",desc:"DNK ketma-ketligidagi o'zgarish"},
+{id:474,cat:'biochemistry',uz:"Epigenetika",lat:"Epigenetica",ru:"Эпигенетика",en:"Epigenetics",desc:"DNK ketma-ketligini o'zgartirmasdan genlar faolligini boshqarish"},
+{id:475,cat:'biochemistry',uz:"Oksalat",lat:"Oxalatum",ru:"Оксалат",en:"Oxalate",desc:"Siydik toshlarining eng keng tarqalgan turi; oksalat-kaltsiy toshi"},
+{id:476,cat:'biochemistry',uz:"Laktik kislota",lat:"Acidum lacticum",ru:"Молочная кислота",en:"Lactic acid",desc:"Anaerob glykolizning yakuniy mahsuloti, mushaklarda to'planib og'riq beradi"},
+{id:477,cat:'biochemistry',uz:"Piruvat",lat:"Pyruvatum",ru:"Пируват",en:"Pyruvate",desc:"Glykolizning yakuniy mahsuloti — Krebs sikliga kirish nuqtasi"},
+{id:478,cat:'biochemistry',uz:"Asetil-KoA",lat:"Acetyl-CoA",ru:"Ацетил-КоА",en:"Acetyl-CoA",desc:"Krebs sikliga kiradigan asosiy metabolit — yog' va karbonsuvlar parchalanishidan hosil bo'ladi"},
+{id:479,cat:'biochemistry',uz:"Keton jismi",lat:"Corpus cetonicum",ru:"Кетоновое тело",en:"Ketone body",desc:"Yog' parchalanishidan jigar hosil qiladigan muqobil energiya manbai"},
+{id:480,cat:'biochemistry',uz:"Elektrolit",lat:"Electrolytum",ru:"Электролит",en:"Electrolyte",desc:"Suvda eriydi va elektr o'tkazadi; Na, K, Ca, Mg, Cl, HCO₃"},
+{id:481,cat:'biochemistry',uz:"Natriy (Na⁺)",lat:"Natrium (Na⁺)",ru:"Натрий (Na⁺)",en:"Sodium (Na⁺)",desc:"Hujayradan tashqari asosiy kation; suyuqlik muvozanati va asab impulsida rol o'ynaydi"},
+{id:482,cat:'biochemistry',uz:"Kaliy (K⁺)",lat:"Kalium (K⁺)",ru:"Калий (K⁺)",en:"Potassium (K⁺)",desc:"Hujayra ichidagi asosiy kation; yurak ritmi va mushak funksiyasi uchun muhim"},
+{id:483,cat:'biochemistry',uz:"Kaltsiy (Ca²⁺)",lat:"Calcium (Ca²⁺)",ru:"Кальций (Ca²⁺)",en:"Calcium (Ca²⁺)",desc:"Suyak, mushak qisqarishi, qon ivishi va nerv signali uchun zarur mineral"},
+{id:484,cat:'biochemistry',uz:"Magniy (Mg²⁺)",lat:"Magnesium (Mg²⁺)",ru:"Магний (Mg²⁺)",en:"Magnesium (Mg²⁺)",desc:"300 dan ortiq ferment reaktsiyasida kofaktor sifatida ishtirok etadi"},
+{id:485,cat:'biochemistry',uz:"Xlor (Cl⁻)",lat:"Chlorum (Cl⁻)",ru:"Хлор (Cl⁻)",en:"Chloride (Cl⁻)",desc:"Suyuqlik muvozanati va oshqozon kislotasi uchun zarur anion"},
+{id:486,cat:'biochemistry',uz:"Bikarbonat (HCO₃⁻)",lat:"Hydrogenocarbonas (HCO₃⁻)",ru:"Бикарбонат (HCO₃⁻)",en:"Bicarbonate (HCO₃⁻)",desc:"Qon pH tamponlash tizimining asosiy komponenti"},
+{id:487,cat:'biochemistry',uz:"Fosfor (PO₄³⁻)",lat:"Phosphorus / Phosphatum",ru:"Фосфор (Фосфат)",en:"Phosphorus (Phosphate)",desc:"Suyak, ATP va DNK tarkibiga kiruvchi muhim mineral"},
+{id:488,cat:'biochemistry',uz:"Temir (Fe)",lat:"Ferrum (Fe)",ru:"Железо (Fe)",en:"Iron (Fe)",desc:"Gemoglobin va mioglobin tarkibidagi kislorod tashuvchi mineral"},
+{id:489,cat:'biochemistry',uz:"Sink (Zn)",lat:"Zincum (Zn)",ru:"Цинк (Zn)",en:"Zinc (Zn)",desc:"100 dan ortiq ferment kofaktori; immunitet va yarani tuzatishda rol o'ynaydi"},
+{id:490,cat:'biochemistry',uz:"Yod (I)",lat:"Iodum (I)",ru:"Йод (I)",en:"Iodine (I)",desc:"Tireoid gormonlar (T3, T4) sintezi uchun muhim mineral"},
+{id:491,cat:'biochemistry',uz:"Mis (Cu)",lat:"Cuprum (Cu)",ru:"Медь (Cu)",en:"Copper (Cu)",desc:"Temir metabolizmi va kollagen sintezida zarur bo'lgan iz element"},
+{id:492,cat:'biochemistry',uz:"Selen (Se)",lat:"Selenium (Se)",ru:"Селен (Se)",en:"Selenium (Se)",desc:"Antioksidant fermentlar tarkibidagi iz element"},
+{id:493,cat:'biochemistry',uz:"Vitamin A",lat:"Vitaminum A (Retinolum)",ru:"Витамин A (Ретинол)",en:"Vitamin A (Retinol)",desc:"Ko'rish, teri va immunitet uchun zarur yog'da eriydigan vitamin"},
+{id:494,cat:'biochemistry',uz:"Vitamin B1 (tiamin)",lat:"Vitaminum B1 (Thiaminum)",ru:"Витамин B1 (Тиамин)",en:"Vitamin B1 (Thiamine)",desc:"Uglevod metabolizmi va asab funksiyasi uchun zarur"},
+{id:495,cat:'biochemistry',uz:"Vitamin B6 (piridoksin)",lat:"Vitaminum B6 (Pyridoxinum)",ru:"Витамин B6 (Пиридоксин)",en:"Vitamin B6 (Pyridoxine)",desc:"Aminokislota almashinuvi va neyrotransmitter sintezi uchun zarur"},
+{id:496,cat:'biochemistry',uz:"Vitamin B12 (sianokobalomin)",lat:"Vitaminum B12 (Cyanocobalaminum)",ru:"Витамин B12 (Цианокобаламин)",en:"Vitamin B12 (Cyanocobalamin)",desc:"Qon hosil qilish va asab tizimi uchun zarur; etishmasa anemiya"},
+{id:497,cat:'biochemistry',uz:"Vitamin E (tokoferol)",lat:"Vitaminum E (Tocopherolum)",ru:"Витамин E (Токоферол)",en:"Vitamin E (Tocopherol)",desc:"Yog'da eriydigan kuchli antioksidant vitamin"},
+{id:498,cat:'biochemistry',uz:"Vitamin K",lat:"Vitaminum K (Phylloquinonum)",ru:"Витамин K",en:"Vitamin K",desc:"Qon ivishi omillarini faollashtiruvchi yog'da eriydigan vitamin"},
+{id:499,cat:'biochemistry',uz:"Folat (B9 vitamini)",lat:"Acidum folicum (Vitaminum B9)",ru:"Фолиевая кислота (Витамин B9)",en:"Folic acid (Vitamin B9)",desc:"Hujayra bo'linishi va DNK sintezi uchun zarur; homiladorlikda muhim"},
+{id:500,cat:'biochemistry',uz:"Niasin (B3 vitamini)",lat:"Acidum nicotinicum (Vitaminum B3)",ru:"Ниацин (Витамин B3)",en:"Niacin (Vitamin B3)",desc:"NAD koenzimlari sintezi uchun zarur; etishmasa pellagra kasalligi"},
+];
+
+let currentCat = 'all';
+let currentQuery = '';
+
+function getCatClass(cat){
+  return {anatomy:'cat-anatomy',disease:'cat-disease',medicine:'cat-medicine',surgery:'cat-surgery',gynecology:'cat-gynecology',pediatrics:'cat-pediatrics',neurology:'cat-neurology',ophthalmology:'cat-ophthalmology',biochemistry:'cat-biochemistry'}[cat]||'';
+}
+function getCatLabel(cat){
+  return {anatomy:'Anatomiya',disease:'Kasallik',medicine:'Dori',surgery:'Jarrohlik',gynecology:'Ginekologiya',pediatrics:'Pediatriya',neurology:'Nevrologiya',ophthalmology:'Oftalmologiya',biochemistry:'Biokimyo'}[cat]||cat;
+}
+function getCatEmoji(cat){
+  return {anatomy:'🫀',disease:'🦠',medicine:'💊',surgery:'🔪',gynecology:'🤰',pediatrics:'👶',neurology:'🧠',ophthalmology:'👁️',biochemistry:'🧪'}[cat]||'📋';
+}
+function esc(s){ return s.replace(/'/g,"\\'"); }
+function hl(text,q){
+  if(!q) return text;
+  return text.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'), '<mark>$1</mark>');
+}
+
+function renderTerms(){
+  const q = currentQuery.toLowerCase().trim();
+  const filtered = TERMS.filter(t=>{
+    const mc = currentCat==='all'||t.cat===currentCat;
+    const mq = !q||[t.uz,t.lat,t.ru,t.en].some(x=>x.toLowerCase().includes(q));
+    return mc&&mq;
+  });
+  document.getElementById('countDisplay').textContent = filtered.length;
+  const container = document.getElementById('termList');
+  const noRes = document.getElementById('noResults');
+  if(!filtered.length){ container.innerHTML=''; noRes.style.display='block'; return; }
+  noRes.style.display='none';
+  container.innerHTML = filtered.map((t,i)=>`
+    <div class="term-card" data-id="${t.id}" style="animation-delay:${Math.min(i*0.025,0.6)}s">
+      <div class="card-header" onclick="toggle(${t.id})">
+        <div class="card-main">
+          <div class="term-uz">${hl(t.uz,currentQuery)}</div>
+          <div class="term-lat">${hl(t.lat,currentQuery)}</div>
+          <div class="term-preview">${t.ru} • ${t.en}</div>
+        </div>
+        <div class="card-right">
+          <span class="category-badge ${getCatClass(t.cat)}">${getCatEmoji(t.cat)} ${getCatLabel(t.cat)}</span>
+          <span class="expand-icon">⌄</span>
+        </div>
+      </div>
+      <div class="card-details">
+        <div class="lang-row">
+          <div class="lang-flag" style="background:rgba(79,156,249,0.15)">🇺🇿</div>
+          <div class="lang-info"><div class="lang-label">O'zbek tili</div><div class="lang-term">${hl(t.uz,currentQuery)}</div></div>
+          <button class="copy-btn" onclick="cp('${esc(t.uz)}')">📋</button>
+        </div>
+        <div class="lang-row">
+          <div class="lang-flag" style="background:rgba(167,139,250,0.15)">🏛️</div>
+          <div class="lang-info"><div class="lang-label">Lotin tili</div><div class="lang-term latin">${hl(t.lat,currentQuery)}</div></div>
+          <button class="copy-btn" onclick="cp('${esc(t.lat)}')">📋</button>
+        </div>
+        <div class="lang-row">
+          <div class="lang-flag" style="background:rgba(248,113,113,0.15)">🇷🇺</div>
+          <div class="lang-info"><div class="lang-label">Rus tili</div><div class="lang-term">${hl(t.ru,currentQuery)}</div></div>
+          <button class="copy-btn" onclick="cp('${esc(t.ru)}')">📋</button>
+        </div>
+        <div class="lang-row">
+          <div class="lang-flag" style="background:rgba(52,211,153,0.15)">🇬🇧</div>
+          <div class="lang-info"><div class="lang-label">Ingliz tili</div><div class="lang-term">${hl(t.en,currentQuery)}</div></div>
+          <button class="copy-btn" onclick="cp('${esc(t.en)}')">📋</button>
+        </div>
+        ${t.desc?`<div class="term-desc">ℹ️ ${t.desc}</div>`:''}
+      </div>
+    </div>`).join('');
+}
+
+function toggle(id){
+  document.querySelector(`[data-id="${id}"]`).classList.toggle('expanded');
+}
+function cp(text){
+  navigator.clipboard.writeText(text).then(()=>{
+    const t=document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),2000);
+  });
+}
+
+document.getElementById('searchInput').addEventListener('input',function(){
+  currentQuery=this.value; renderTerms();
+});
+document.querySelectorAll('.filter-btn').forEach(btn=>{
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    currentCat=this.dataset.cat;
+    renderTerms();
+  });
+});
+
+renderTerms();
+</script>
+</body>
+</html>
